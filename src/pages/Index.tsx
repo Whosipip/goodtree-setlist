@@ -7,8 +7,9 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
+  const [selectedService, setSelectedService] = useState<'aug13' | 'aug27'>('aug13');
 
-  const songs = [
+  const aug13Songs = [
     {
       title: "Salamat, Salamat (Song #342)",
       youtubeUrl: "https://www.youtube.com/watch?v=Z_2sCkjESDg",
@@ -105,8 +106,80 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
+  const aug27Songs = [
+    {
+      title: "Trading My Sorrow (Song #377)",
+      youtubeUrl: "https://www.youtube.com/watch?v=RvTg2WFTHyE",
+      lyrics: `Verse 1
+A         D               F#m  E  A       D               F#m  E
+I'm trading my sorrow, I'm trading my shame
+A        D                  F#m
+I'm laying them down
+                 E                 A-D-F#m-E
+For the joy of the Lord
+A          D                F#m  E  A      D            F#m  E
+I'm trading my sickness, I'm trading my pain
+A         D                 F#m
+I'm laying them down
+                  E             A-D-F#m-E
+For the joy of the Lord
+
+Chorus
+                  A
+We say Yes, Lord 
+   D                F#m
+Yes Lord, Yes Yes Lord
+   A                  D             F#m         E
+Yes Lord, Yes Lord, Yes Yes Lord
+A
+Amen
+
+Verse 2
+A                                     D
+I'm pressed but not crushed
+            F#m              E
+Persecuted not abandoned
+A                             D            F#m-E
+Struck down but not destroyed
+                 A                             D
+I am blessed beyond the curse
+                     F#m                 E
+For His promise will endure
+A                            D             F#m         E
+That His joy is going to be my strength
+E
+Though my sorrows may last for the night
+            G                             D
+His joy comes with the morning
+
+Shared from Melody of Angels - Good Tree Church`
+    },
+    {
+      title: "I'm Free (Song #294)",
+      youtubeUrl: "https://www.youtube.com/watch?v=RKXQy3KhKOs",
+      lyrics: `Chorus
+         E                E
+I'm free, I'm free, 
+             B                                       E
+I'm free to be a servant of the Lord (2x)
+
+            A                          E
+He taught me how to praise Him
+            A                        E
+He taught me how to sing a song
+           A                    E
+He taught how to love
+           A                 B                     E
+I'm free to be a servant of the Lord
+
+Shared from Melody of Angels - Good Tree Church`
+    }
+  ];
+
+  const currentSongs = selectedService === 'aug13' ? aug13Songs : aug27Songs;
+
   if (showSongs) {
-    return <SongView songs={songs} onClose={() => setShowSongs(false)} />;
+    return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
   }
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -123,9 +196,9 @@ Shared from Melody of Angels - Good Tree Church`
 
       <div className="px-4 mb-8">
         <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
-          <StatsCard number="1" label="Upcoming" />
-          <StatsCard number="2" label="With Songs" />
-          <StatsCard number="2" label="Total Songs" />
+          <StatsCard number="2" label="Upcoming" />
+          <StatsCard number="4" label="With Songs" />
+          <StatsCard number="4" label="Total Songs" />
         </div>
       </div>
 
@@ -139,7 +212,21 @@ Shared from Melody of Angels - Good Tree Church`
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={2}
-            onClick={() => setShowSongs(true)}
+            onClick={() => {
+              setSelectedService('aug13');
+              setShowSongs(true);
+            }}
+          />
+
+          <ServiceCard 
+            date="Aug 27"
+            title="Wednesday Praise and Worship"
+            status="upcoming"
+            songCount={2}
+            onClick={() => {
+              setSelectedService('aug27');
+              setShowSongs(true);
+            }}
           />
 
           <HowToUse />
