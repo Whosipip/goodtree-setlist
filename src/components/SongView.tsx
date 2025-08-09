@@ -63,108 +63,122 @@ export const SongView = ({ songs, onClose }: SongViewProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-hero z-50 overflow-y-auto">
-      {/* Header */}
-      <div className="bg-white/10 backdrop-blur-sm border-b border-white/20 p-4">
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 bg-gradient-hero z-50 overflow-y-auto flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-white rounded-lg shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header with controls */}
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           <Button
             onClick={onClose}
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="text-white hover:bg-white/20"
+            className="text-primary border-primary hover:bg-primary hover:text-white"
           >
-            <X className="h-6 w-6" />
+            <X className="h-4 w-4" />
           </Button>
-          
+
           <div className="flex items-center space-x-2">
             <Button
-              onClick={() => setTranspose(transpose - 1)}
-              variant="ghost"
+              onClick={prevSong}
+              variant="outline"
               size="icon"
-              className="text-white hover:bg-white/20 bg-primary/20"
+              className="text-primary border-primary hover:bg-primary hover:text-white"
+              disabled={songs.length <= 1}
             >
-              <Minus className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-white font-medium min-w-[60px] text-center">
-              {transpose > 0 ? `+${transpose}` : transpose}
-            </span>
-            <Button
-              onClick={() => setTranspose(transpose + 1)}
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/20 bg-primary/20"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <Button
-            onClick={prevSong}
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20 bg-primary/20"
-            disabled={songs.length <= 1}
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
-          
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-white">{currentSong.title}</h2>
-            <p className="text-white/80 text-sm">
+            
+            <span className="text-sm text-gray-600 min-w-[60px] text-center">
               {currentSongIndex + 1} of {songs.length}
-            </p>
-          </div>
+            </span>
 
-          <Button
-            onClick={nextSong}
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20 bg-primary/20"
-            disabled={songs.length <= 1}
-          >
-            <ChevronRight className="h-6 w-6" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-4">
-        {/* YouTube Video */}
-        <Card className="bg-white/90 backdrop-blur-sm shadow-card border-0 p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-foreground">Video</h3>
-            <a 
-              href={currentSong.youtubeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 text-primary hover:text-primary-dark"
+            <Button
+              onClick={nextSong}
+              variant="outline"
+              size="icon"
+              className="text-primary border-primary hover:bg-primary hover:text-white"
+              disabled={songs.length <= 1}
             >
-              <Play className="h-4 w-4" />
-              <span className="text-sm">Watch on YouTube</span>
-            </a>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
-          <div className="aspect-video">
-            <iframe
-              src={currentSong.youtubeUrl.replace('watch?v=', 'embed/')}
-              className="w-full h-full rounded-lg"
-              allowFullScreen
-              title={currentSong.title}
+
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              className="text-primary border-primary hover:bg-primary hover:text-white px-3 py-1 text-sm"
+            >
+              Set Key
+            </Button>
+            
+            <div className="flex items-center space-x-1">
+              <Button
+                onClick={() => setTranspose(transpose - 1)}
+                variant="outline"
+                size="icon"
+                className="text-primary border-primary hover:bg-primary hover:text-white h-8 w-8"
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+              <Button
+                onClick={() => setTranspose(transpose + 1)}
+                variant="outline"
+                size="icon"
+                className="text-primary border-primary hover:bg-primary hover:text-white h-8 w-8"
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+
+            <Button
+              variant="outline"
+              className="text-primary border-primary hover:bg-primary hover:text-white px-3 py-1 text-sm"
+            >
+              Chords
+            </Button>
+          </div>
+        </div>
+
+        {/* Song title */}
+        <div className="p-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900 text-center">{currentSong.title}</h2>
+        </div>
+
+        {/* Content area */}
+        <div className="flex-1 overflow-y-auto">
+          {/* YouTube Video */}
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-gray-900">Video</h3>
+              <a 
+                href={currentSong.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-primary hover:text-primary-dark"
+              >
+                <Play className="h-4 w-4" />
+                <span className="text-sm">Watch on YouTube</span>
+              </a>
+            </div>
+            <div className="aspect-video">
+              <iframe
+                src={currentSong.youtubeUrl.replace('watch?v=', 'embed/')}
+                className="w-full h-full rounded-lg"
+                allowFullScreen
+                title={currentSong.title}
+              />
+            </div>
+          </div>
+
+          {/* Lyrics and Chords */}
+          <div className="p-4">
+            <div 
+              className="font-mono text-sm whitespace-pre-line leading-relaxed"
+              dangerouslySetInnerHTML={{ 
+                __html: processLyrics(currentSong.lyrics)
+              }}
             />
           </div>
-        </Card>
-
-        {/* Lyrics and Chords */}
-        <Card className="bg-white/90 backdrop-blur-sm shadow-card border-0 p-4">
-          <h3 className="font-semibold text-foreground mb-4">Lyrics & Chords</h3>
-          <div 
-            className="font-mono text-sm whitespace-pre-line"
-            dangerouslySetInnerHTML={{ 
-              __html: processLyrics(currentSong.lyrics)
-            }}
-          />
-        </Card>
+        </div>
       </div>
     </div>
   );
