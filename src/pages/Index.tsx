@@ -7,104 +7,7 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const [selectedService, setSelectedService] = useState<'aug13' | 'aug27' | 'sept3'>('aug13');
-
-  const aug13Songs = [
-    {
-      title: "Salamat, Salamat (Song #342)",
-      youtubeUrl: "https://www.youtube.com/watch?v=Z_2sCkjESDg",
-      lyrics: `(Intro is only verse chords)
-
-Verse 1
-E                                  G#m                      A
-Kung aking mamasdan ang kalawakan
-                              B          E                   G#m
-Hindi ko maunawaan ang Iyong dahilan
-                      A                                     B  
-Kung bakit ako'y pinili Mo't inalagaan
-
-    G#m                   C#m   
-* Di ko kayang isipin
-                    G#m                         C#m
-   Hinding hindi ko kayang sukatin
-    A              E/G#
-   Ang pag-ibig Mo Hesus 
-            F#m                           B 
-   Na 'Yong binigay sa akin
-
-Chorus
-A                   B
-Salamat, Salamat 
-         G#m                           C#m     
-Oh! Hesus sa pag-ibig Mo
-F#m                             B 
-Walang ibang nagmahal sa akin na 
-     E               E7 
-Katulad Mo
-A                   B
-Salamat, Salamat 
-         G#sus                         C#m
-Oh! Hesus sa pag-ibig Mo
-A                          B                     E
-Ako'y magsasaya sa piling Mo
-
-Verse 2
-Kung may pagsubok man o kagipitan
-Ako ay may lalapitan
-Ikaw Hesus ang aking sandigan
-Hindi Mo ko pababayaan
-
-Bridge
-A                              E/G# 
-Buhay ko na ang purihin Ka
-F#m                                         B
-Buhay ko na ang sa 'Yo ay sumamba 
-A                          E/G#
-Wala ng ibang nanaisin pa
-             F#m                   B 
-Kundi pasalamatan Ka
-
-Shared from Melody of Angels - Good Tree Church`
-    },
-    {
-      title: "Give You My Heart (Song #144)",
-      youtubeUrl: "https://www.youtube.com/watch?v=9bQY2komrnA",
-      lyrics: `Verse 1
-G          D/F# Em
-This is my desire
-   C  G   D/F#
-To honor You
-Em            D/F# G 
-Lord with all my heart 
-          F    C - D
-I worship You
-
-G          D/F# Em
-All I have within me
-  C    G       D/F#
-I give You praise
-Em         D/F# G 
-All that I adore
-      F    C - D 
-Is in You
-
-Chorus
-G                  D/F#
-Lord I give You my heart
-              Am
-I give You my soul
-  C        D      G
-I live for You alone
-                   D/F#
-Every breath that I take
-                  Am
-Every moment I'm awake
-     C         D      CM7  
-Lord have Your way in me
-
-Shared from Melody of Angels - Good Tree Church`
-    }
-  ];
+  const [selectedService, setSelectedService] = useState<'aug27' | 'sept3'>('aug27');
 
   const aug27Songs = [
     {
@@ -153,7 +56,10 @@ Though my sorrows may last for the night
 His joy comes with the morning
 
 Shared from Melody of Angels - Good Tree Church`
-    },
+    }
+  ];
+
+  const sept3Songs = [
     {
       title: "I'm Free (Song #294)",
       youtubeUrl: "https://www.youtube.com/watch?v=RKXQy3KhKOs",
@@ -176,84 +82,7 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const sept3Songs = [
-    {
-      title: "Community Song (Song #528)",
-      youtubeUrl: "https://www.youtube.com/watch?v=G5y4PsAZVss",
-      lyrics: `Verse 1
- D
-It's I, It's I,It's I, who builds community
-                        A
-It's I, It's I, It's I, who builds community
-                        D
-It's I, It's I, It's I, who builds community
-                                G                               A7     D – D7
-It's I, who builds community
-
-La la la…..
-
-Chorus
-                   G                                    D
-Roll over the ocean, roll over the sea
-                A                                                                  D – A – D
-Go and do your part and build community
-                    G                                    D
-Roll over the ocean, roll over the sea
-                A                                                              D – A – D
-Go and do your part and build community
-
-*YOU  	*US 
-*LOVE 	*CHRIST
-Shared from Melody of Angels - Good Tree Church`
-    },
-    {
-      title: "Heart Of Worship (Song #133)",
-      youtubeUrl: "https://www.youtube.com/watch?v=g9D3mnecx0k",
-      lyrics: `Verse 1
-E                                  B/Eb
-When the music fades
-                                  F#m
-And all is stripped away
-             Bsus-B 
-And I simply come
-Longing just to bring
-Something that's of worth
-That would bless Your heart
-
-Pre-Chorus
-F#m             C#m          Bsus        B
-I'll bring You more than a song
-For a song in it itself
-F#m            C#m            Bsus-B
-Is not what You have required
-F#m            C#m            Bsus-B
-You search much deeper within
-To the way things appear
-F#m            C#m            Bsus-B
-You're looking into my heart
-
-Chorus
-E                                             B/Eb
-I'm coming back to heart of worship
-     F#m        E
-It's all about You
-     A         Bsus-A     E
-It's all about You,    Jesus
-I'm sorry Lord for the thing I've made it
-When it's all about You
-All about You      Jesus
-
-Verse 2
-King of endless worth no one could express
-How much you deserve
-Though I'm weak and poor all I have is Yours
-Every single breath
-
-Shared from Melody of Angels - Good Tree Church`
-    }
-  ];
-
-  const currentSongs = selectedService === 'aug13' ? aug13Songs : selectedService === 'aug27' ? aug27Songs : sept3Songs;
+  const currentSongs = selectedService === 'aug27' ? aug27Songs : sept3Songs;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -273,9 +102,9 @@ Shared from Melody of Angels - Good Tree Church`
 
       <div className="px-4 mb-8">
         <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
-          <StatsCard number="3" label="Upcoming" />
-          <StatsCard number="6" label="With Songs" />
-          <StatsCard number="6" label="Total Songs" />
+          <StatsCard number="2" label="Upcoming" />
+          <StatsCard number="2" label="With Songs" />
+          <StatsCard number="2" label="Total Songs" />
         </div>
       </div>
 
@@ -284,22 +113,11 @@ Shared from Melody of Angels - Good Tree Church`
         <div className="max-w-md mx-auto space-y-6">
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
-          <ServiceCard 
-            date="Aug 13"
-            title="Wednesday Praise and Worship"
-            status="upcoming"
-            songCount={2}
-            onClick={() => {
-              setSelectedService('aug13');
-              setShowSongs(true);
-            }}
-          />
-
           <ServiceCard
             date="Aug 27"
             title="Wednesday Praise and Worship"
             status="upcoming"
-            songCount={2}
+            songCount={1}
             onClick={() => {
               setSelectedService('aug27');
               setShowSongs(true);
@@ -310,7 +128,7 @@ Shared from Melody of Angels - Good Tree Church`
             date="Sept. 3"
             title="Wednesday Praise and Worship"
             status="upcoming"
-            songCount={2}
+            songCount={1}
             onClick={() => {
               setSelectedService('sept3');
               setShowSongs(true);
