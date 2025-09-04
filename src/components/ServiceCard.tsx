@@ -7,11 +7,17 @@ interface ServiceCardProps {
   status: "upcoming" | "completed";
   songCount?: number;
   onClick?: () => void;
+  locked?: boolean;
 }
 
-export const ServiceCard = ({ date, title, status, songCount, onClick }: ServiceCardProps) => {
+export const ServiceCard = ({ date, title, status, songCount, onClick, locked = false }: ServiceCardProps) => {
   return (
-    <Card className="bg-white/90 backdrop-blur-sm shadow-card border-0 p-6 cursor-pointer hover:shadow-soft transition-all duration-200 hover:scale-105" onClick={onClick}>
+    <Card 
+      className={`bg-white/90 backdrop-blur-sm shadow-card border-0 p-6 transition-all duration-200 ${
+        locked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-soft hover:scale-105'
+      }`} 
+      onClick={locked ? undefined : onClick}
+    >
       <div className="text-sm text-muted-foreground mb-2">{date}</div>
       <h3 className="text-lg font-semibold text-foreground mb-3">{title}</h3>
       <div className="flex items-center justify-between">

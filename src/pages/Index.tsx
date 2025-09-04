@@ -34,17 +34,35 @@ Shared from Melody of Angels - Good Tree Church`
 
   const sept17Songs = [
     {
-      title: "Amazing Grace",
-      youtubeUrl: "https://www.youtube.com/watch?v=CDdvReNKKuk",
+      title: "Mercy Is Falling (Song #253)",
+      youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       lyrics: `Verse 1
-G                C           G
-Amazing grace how sweet the sound
-                    D
-That saved a wretch like me
-G              C        G
-I once was lost but now am found
-             D         G
-Was blind but now I see
+  E       A 
+Mercy is falling 
+    E            B 
+Is falling - is falling 
+  E        A 
+Mercy, it falls 
+          C#m           B 
+Like the sweet spring rain 
+  E       A 
+Mercy is falling 
+     E          B   E 
+Is falling all over me 
+
+Chorus
+  E 
+Hey-oh 
+     A          B 
+I receive Your mercy 
+ E 
+Hey-oh 
+     C#m         B 
+I receive Your grace 
+ E 
+Hey-oh 
+        A       B    E 
+I will dance forevermore
 
 Shared from Melody of Angels - Good Tree Church`
     }
@@ -106,18 +124,17 @@ Shared from Melody of Angels - Good Tree Church`
             />
           )}
 
-          {canAccessSept17 && (
-            <ServiceCard 
-              date="Sept. 17"
-              title="Wednesday Praise and Worship"
-              status="upcoming"
-              songCount={1}
-              onClick={() => {
-                setSelectedService('sept17');
-                setShowSongs(true);
-              }}
-            />
-          )}
+          <ServiceCard 
+            date="Sept. 17"
+            title="Wednesday Praise and Worship"
+            status="upcoming"
+            songCount={1}
+            onClick={canAccessSept17 ? () => {
+              setSelectedService('sept17');
+              setShowSongs(true);
+            } : undefined}
+            locked={!canAccessSept17}
+          />
 
           <HowToUse />
         </div>
