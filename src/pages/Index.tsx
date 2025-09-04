@@ -52,10 +52,17 @@ Shared from Melody of Angels - Good Tree Church`
 
   const currentSongs = selectedService === 'sept10' ? sept10Songs : sept17Songs;
 
-  // Check if it's Thursday or later for access restriction
+  // Date-based access control
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0 = Sunday, 4 = Thursday
-  const canAccessSongs = dayOfWeek >= 4; // Thursday (4) and onwards
+  const currentDate = today.getDate();
+  const currentMonth = today.getMonth(); // 0-based (8 = September)
+  
+  // Sept 10 lineup: accessible Thursday through Sept 10
+  const canAccessSept10 = dayOfWeek >= 4 && !(currentMonth === 8 && currentDate >= 11);
+  
+  // Sept 17 lineup: accessible from Sept 11 onwards
+  const canAccessSept17 = currentMonth === 8 && currentDate >= 11;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -86,31 +93,31 @@ Shared from Melody of Angels - Good Tree Church`
         <div className="max-w-md mx-auto space-y-6">
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
-          <ServiceCard
-            date="Sept. 10"
-            title="Wednesday Praise and Worship"
-            status="upcoming"
-            songCount={1}
-            onClick={() => {
-              if (canAccessSongs) {
+          {canAccessSept10 && (
+            <ServiceCard
+              date="Sept. 10"
+              title="Wednesday Praise and Worship"
+              status="upcoming"
+              songCount={1}
+              onClick={() => {
                 setSelectedService('sept10');
                 setShowSongs(true);
-              }
-            }}
-          />
+              }}
+            />
+          )}
 
-          <ServiceCard 
-            date="Sept. 17"
-            title="Wednesday Praise and Worship"
-            status="upcoming"
-            songCount={1}
-            onClick={() => {
-              if (canAccessSongs) {
+          {canAccessSept17 && (
+            <ServiceCard 
+              date="Sept. 17"
+              title="Wednesday Praise and Worship"
+              status="upcoming"
+              songCount={1}
+              onClick={() => {
                 setSelectedService('sept17');
                 setShowSongs(true);
-              }
-            }}
-          />
+              }}
+            />
+          )}
 
           <HowToUse />
         </div>
