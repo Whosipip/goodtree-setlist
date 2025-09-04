@@ -7,59 +7,9 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const [selectedService, setSelectedService] = useState<'aug27' | 'sept3'>('aug27');
+  const [selectedService, setSelectedService] = useState<'sept10' | 'sept17'>('sept10');
 
-  const aug27Songs = [
-    {
-      title: "Trading My Sorrow (Song #377)",
-      youtubeUrl: "https://www.youtube.com/watch?v=RvTg2WFTHyE",
-      lyrics: `Verse 1
-A         D               F#m  E  A       D               F#m  E
-I'm trading my sorrow, I'm trading my shame
-A        D                  F#m
-I'm laying them down
-                 E                 A-D-F#m-E
-For the joy of the Lord
-A          D                F#m  E  A      D            F#m  E
-I'm trading my sickness, I'm trading my pain
-A         D                 F#m
-I'm laying them down
-                  E             A-D-F#m-E
-For the joy of the Lord
-
-Chorus
-                  A
-We say Yes, Lord 
-   D                F#m
-Yes Lord, Yes Yes Lord
-   A                  D             F#m         E
-Yes Lord, Yes Lord, Yes Yes Lord
-A
-Amen
-
-Verse 2
-A                                     D
-I'm pressed but not crushed
-            F#m              E
-Persecuted not abandoned
-A                             D            F#m-E
-Struck down but not destroyed
-                 A                             D
-I am blessed beyond the curse
-                     F#m                 E
-For His promise will endure
-A                            D             F#m         E
-That His joy is going to be my strength
-E
-Though my sorrows may last for the night
-            G                             D
-His joy comes with the morning
-
-Shared from Melody of Angels - Good Tree Church`
-    }
-  ];
-
-  const sept3Songs = [
+  const sept10Songs = [
     {
       title: "I'm Free (Song #294)",
       youtubeUrl: "https://www.youtube.com/watch?v=RKXQy3KhKOs",
@@ -82,7 +32,30 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const currentSongs = selectedService === 'aug27' ? aug27Songs : sept3Songs;
+  const sept17Songs = [
+    {
+      title: "Amazing Grace",
+      youtubeUrl: "https://www.youtube.com/watch?v=CDdvReNKKuk",
+      lyrics: `Verse 1
+G                C           G
+Amazing grace how sweet the sound
+                    D
+That saved a wretch like me
+G              C        G
+I once was lost but now am found
+             D         G
+Was blind but now I see
+
+Shared from Melody of Angels - Good Tree Church`
+    }
+  ];
+
+  const currentSongs = selectedService === 'sept10' ? sept10Songs : sept17Songs;
+
+  // Check if it's Thursday or later for access restriction
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 4 = Thursday
+  const canAccessSongs = dayOfWeek >= 4; // Thursday (4) and onwards
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -114,24 +87,28 @@ Shared from Melody of Angels - Good Tree Church`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard
-            date="Aug 27"
+            date="Sept. 10"
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
             onClick={() => {
-              setSelectedService('aug27');
-              setShowSongs(true);
+              if (canAccessSongs) {
+                setSelectedService('sept10');
+                setShowSongs(true);
+              }
             }}
           />
 
           <ServiceCard 
-            date="Sept. 3"
+            date="Sept. 17"
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
             onClick={() => {
-              setSelectedService('sept3');
-              setShowSongs(true);
+              if (canAccessSongs) {
+                setSelectedService('sept17');
+                setShowSongs(true);
+              }
             }}
           />
 
