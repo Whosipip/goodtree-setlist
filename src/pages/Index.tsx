@@ -7,7 +7,7 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const [selectedService, setSelectedService] = useState<'sept10' | 'sept17'>('sept10');
+  const [selectedService, setSelectedService] = useState<'sept10' | 'sept24' | 'oct1'>('sept10');
 
   const sept10Songs = [
     {
@@ -32,7 +32,7 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const sept17Songs = [
+  const sept24Songs = [
     {
       title: "Mercy Is Falling (Song #253)",
       youtubeUrl: "https://www.youtube.com/watch?v=HXip3WshDog",
@@ -68,7 +68,44 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const currentSongs = selectedService === 'sept10' ? sept10Songs : sept17Songs;
+  const oct1Songs = [
+    {
+      title: "Langit (Song #332)",
+      youtubeUrl: "https://www.youtube.com/watch?v=lxtHtbrjsJ4",
+      lyrics: `Verse 1
+A                                                      C#m
+Ang kailangan ko ay ang pag-ibig Mo 
+     Bm                                     Esus
+O Diyos sa buhay kong ito 
+                                                        C#m
+Ang kagalakan Mo ay kalakasan ko 
+  Bm                    Esus
+Ikaw ang nais ko 
+           D                          C#m 
+Ikaw lamang ang pupurihin
+          Bm                             Esus 
+Ang pangalan Mo'y dadakilain 
+      D                             C#m
+Wala na Sayo'y maihahambing 
+                   Bm                          Esus
+Ang awit ko'y Iyong dinggin 
+
+Chorus
+A                   C#m         Bm
+Langit ang aking nadarama 
+      E7                         A 
+Sa twing kapiling Ka
+              C#m                        Bm  
+Ang puso ko'y sumisigla 
+                  Esus
+Kapag Sayo'y sumsamba
+
+Shared from Melody of Angels - Good Tree Church`
+    }
+  ];
+
+  const currentSongs = selectedService === 'sept10' ? sept10Songs : 
+                      selectedService === 'sept24' ? sept24Songs : oct1Songs;
 
   // Date-based access control
   const today = new Date();
@@ -79,13 +116,16 @@ Shared from Melody of Angels - Good Tree Church`
   // Sept 10 lineup: accessible Thursday through Sept 10
   const canAccessSept10 = dayOfWeek >= 4 && !(currentMonth === 8 && currentDate >= 11);
   
-  // Sept 17 lineup: accessible from Sept 11 onwards
-  const canAccessSept17 = currentMonth === 8 && currentDate >= 11;
+  // Sept 24 lineup: accessible from Sept 11 through Sept 24
+  const canAccessSept24 = currentMonth === 8 && currentDate >= 11 && currentDate <= 24;
+  
+  // Oct 1 lineup: accessible from Sept 25 onwards
+  const canAccessOct1 = (currentMonth === 8 && currentDate >= 25) || currentMonth >= 9;
 
   // Calculate dynamic stats
-  const availableLineups = (canAccessSept10 ? 1 : 0) + 1; // Sept 17 is always visible
-  const accessibleLineups = (canAccessSept10 ? 1 : 0) + (canAccessSept17 ? 1 : 0);
-  const totalSongs = (canAccessSept10 ? sept10Songs.length : 0) + (canAccessSept17 ? sept17Songs.length : 0);
+  const availableLineups = (canAccessSept10 ? 1 : 0) + 1 + 1; // Sept 24 and Oct 1 are always visible
+  const accessibleLineups = (canAccessSept10 ? 1 : 0) + (canAccessSept24 ? 1 : 0) + (canAccessOct1 ? 1 : 0);
+  const totalSongs = (canAccessSept10 ? sept10Songs.length : 0) + (canAccessSept24 ? sept24Songs.length : 0) + (canAccessOct1 ? oct1Songs.length : 0);
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -130,15 +170,27 @@ Shared from Melody of Angels - Good Tree Church`
           )}
 
           <ServiceCard 
-            date="Sept. 17"
+            date="Sept. 24"
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
-            onClick={canAccessSept17 ? () => {
-              setSelectedService('sept17');
+            onClick={canAccessSept24 ? () => {
+              setSelectedService('sept24');
               setShowSongs(true);
             } : undefined}
-            locked={!canAccessSept17}
+            locked={!canAccessSept24}
+          />
+
+          <ServiceCard 
+            date="Oct. 1"
+            title="Wednesday Praise and Worship"
+            status="upcoming"
+            songCount={1}
+            onClick={canAccessOct1 ? () => {
+              setSelectedService('oct1');
+              setShowSongs(true);
+            } : undefined}
+            locked={!canAccessOct1}
           />
 
           <HowToUse />
