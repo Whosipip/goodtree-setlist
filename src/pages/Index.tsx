@@ -35,7 +35,7 @@ Shared from Melody of Angels - Good Tree Church`
   const sept17Songs = [
     {
       title: "Mercy Is Falling (Song #253)",
-      youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      youtubeUrl: "https://www.youtube.com/watch?v=HXip3WshDog",
       lyrics: `Verse 1
   E       A 
 Mercy is falling 
