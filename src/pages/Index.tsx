@@ -82,6 +82,11 @@ Shared from Melody of Angels - Good Tree Church`
   // Sept 17 lineup: accessible from Sept 11 onwards
   const canAccessSept17 = currentMonth === 8 && currentDate >= 11;
 
+  // Calculate dynamic stats
+  const availableLineups = (canAccessSept10 ? 1 : 0) + 1; // Sept 17 is always visible
+  const accessibleLineups = (canAccessSept10 ? 1 : 0) + (canAccessSept17 ? 1 : 0);
+  const totalSongs = (canAccessSept10 ? sept10Songs.length : 0) + (canAccessSept17 ? sept17Songs.length : 0);
+
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
   }
@@ -100,9 +105,9 @@ Shared from Melody of Angels - Good Tree Church`
 
       <div className="px-4 mb-8">
         <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
-          <StatsCard number="2" label="Upcoming" />
-          <StatsCard number="2" label="With Songs" />
-          <StatsCard number="2" label="Total Songs" />
+          <StatsCard number={availableLineups.toString()} label="Upcoming" />
+          <StatsCard number={accessibleLineups.toString()} label="With Songs" />
+          <StatsCard number={totalSongs.toString()} label="Total Songs" />
         </div>
       </div>
 
