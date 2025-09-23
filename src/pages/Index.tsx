@@ -119,8 +119,8 @@ Shared from Melody of Angels - Good Tree Church`
   // Sept 24 lineup: accessible from Sept 11 through Sept 26 (Thursday after)
   const canAccessSept24 = currentMonth === 8 && currentDate >= 11 && currentDate <= 26;
   
-  // Oct 1 lineup: accessible from Sept 25 through Oct 3 (Thursday after)
-  const canAccessOct1 = (currentMonth === 8 && currentDate >= 25) || (currentMonth === 9 && currentDate <= 3);
+  // Oct 1 lineup: accessible from Sept 26 (Thursday after Sept 24) through Oct 3 (Thursday after)
+  const canAccessOct1 = (currentMonth === 8 && currentDate >= 26) || (currentMonth === 9 && currentDate <= 3);
 
   // Calculate dynamic stats
   const availableLineups = (canAccessSept10 ? 1 : 0) + 1 + 1; // Sept 24 and Oct 1 are always visible
