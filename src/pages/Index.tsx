@@ -7,7 +7,7 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const [selectedService, setSelectedService] = useState<'sept10' | 'sept24' | 'oct1'>('sept10');
+  const [selectedService, setSelectedService] = useState<'sept10' | 'oct1' | 'oct8'>('sept10');
 
   const sept10Songs = [
     {
@@ -32,7 +32,7 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const sept24Songs = [
+  const oct1Songs = [
     {
       title: "Mercy Is Falling (Song #253)",
       youtubeUrl: "https://www.youtube.com/watch?v=HXip3WshDog",
@@ -68,7 +68,7 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const oct1Songs = [
+  const oct8Songs = [
     {
       title: "Langit (Song #332)",
       youtubeUrl: "https://www.youtube.com/watch?v=lxtHtbrjsJ4",
@@ -105,7 +105,7 @@ Shared from Melody of Angels - Good Tree Church`
   ];
 
   const currentSongs = selectedService === 'sept10' ? sept10Songs : 
-                      selectedService === 'sept24' ? sept24Songs : oct1Songs;
+                      selectedService === 'oct1' ? oct1Songs : oct8Songs;
 
   // Date-based access control
   const today = new Date();
@@ -116,16 +116,16 @@ Shared from Melody of Angels - Good Tree Church`
   // Sept 10 lineup: accessible Thursday through Sept 12 (Thursday after)
   const canAccessSept10 = dayOfWeek >= 4 && !(currentMonth === 8 && currentDate >= 13);
   
-  // Sept 24 lineup: accessible from Sept 11 through Sept 26 (Thursday after)
-  const canAccessSept24 = currentMonth === 8 && currentDate >= 11 && currentDate <= 26;
+  // Oct 1 lineup: accessible from Sept 11 through Oct 3 (Thursday after)
+  const canAccessOct1 = (currentMonth === 8 && currentDate >= 11 && currentDate <= 26) || (currentMonth === 9 && currentDate <= 3);
   
-  // Oct 1 lineup: accessible from Sept 26 (Thursday after Sept 24) through Oct 3 (Thursday after)
-  const canAccessOct1 = (currentMonth === 8 && currentDate >= 26) || (currentMonth === 9 && currentDate <= 3);
+  // Oct 8 lineup: accessible from Oct 3 (Thursday after Oct 1) through Oct 10 (Thursday after)
+  const canAccessOct8 = currentMonth === 9 && currentDate >= 3 && currentDate <= 10;
 
   // Calculate dynamic stats
-  const availableLineups = (canAccessSept10 ? 1 : 0) + 1 + 1; // Sept 24 and Oct 1 are always visible
-  const accessibleLineups = (canAccessSept10 ? 1 : 0) + (canAccessSept24 ? 1 : 0) + (canAccessOct1 ? 1 : 0);
-  const totalSongs = (canAccessSept10 ? sept10Songs.length : 0) + (canAccessSept24 ? sept24Songs.length : 0) + (canAccessOct1 ? oct1Songs.length : 0);
+  const availableLineups = (canAccessSept10 ? 1 : 0) + 1 + 1; // Oct 1 and Oct 8 are always visible
+  const accessibleLineups = (canAccessSept10 ? 1 : 0) + (canAccessOct1 ? 1 : 0) + (canAccessOct8 ? 1 : 0);
+  const totalSongs = (canAccessSept10 ? sept10Songs.length : 0) + (canAccessOct1 ? oct1Songs.length : 0) + (canAccessOct8 ? oct8Songs.length : 0);
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -170,18 +170,6 @@ Shared from Melody of Angels - Good Tree Church`
           )}
 
           <ServiceCard 
-            date="Sept. 24"
-            title="Wednesday Praise and Worship"
-            status="upcoming"
-            songCount={1}
-            onClick={canAccessSept24 ? () => {
-              setSelectedService('sept24');
-              setShowSongs(true);
-            } : undefined}
-            locked={!canAccessSept24}
-          />
-
-          <ServiceCard 
             date="Oct. 1"
             title="Wednesday Praise and Worship"
             status="upcoming"
@@ -191,6 +179,18 @@ Shared from Melody of Angels - Good Tree Church`
               setShowSongs(true);
             } : undefined}
             locked={!canAccessOct1}
+          />
+
+          <ServiceCard 
+            date="Oct. 8"
+            title="Wednesday Praise and Worship"
+            status="upcoming"
+            songCount={1}
+            onClick={canAccessOct8 ? () => {
+              setSelectedService('oct8');
+              setShowSongs(true);
+            } : undefined}
+            locked={!canAccessOct8}
           />
 
           <HowToUse />
