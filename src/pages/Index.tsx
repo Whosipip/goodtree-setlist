@@ -113,14 +113,14 @@ Shared from Melody of Angels - Good Tree Church`
   const currentDate = today.getDate();
   const currentMonth = today.getMonth(); // 0-based (8 = September)
   
-  // Sept 10 lineup: accessible Thursday through Sept 12 (Thursday after)
-  const canAccessSept10 = dayOfWeek >= 4 && !(currentMonth === 8 && currentDate >= 13);
+  // Sept 10 lineup: no longer accessible
+  const canAccessSept10 = false;
   
-  // Oct 1 lineup: accessible now through Oct 3 (Thursday after)
-  const canAccessOct1 = true;
+  // Oct 1 lineup: no longer accessible
+  const canAccessOct1 = false;
   
-  // Oct 8 lineup: accessible from Oct 3 (Thursday after Oct 1) through Oct 10 (Thursday after)
-  const canAccessOct8 = currentMonth === 9 && currentDate >= 3 && currentDate <= 10;
+  // Oct 8 lineup: accessible now through Oct 10 (Thursday after)
+  const canAccessOct8 = true;
 
   // Calculate dynamic stats
   const availableLineups = (canAccessSept10 ? 1 : 0) + 1 + 1; // Oct 1 and Oct 8 are always visible
