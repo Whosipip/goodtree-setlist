@@ -7,66 +7,7 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const [selectedService, setSelectedService] = useState<'sept10' | 'oct1' | 'oct8'>('sept10');
-
-  const sept10Songs = [
-    {
-      title: "I'm Free (Song #294)",
-      youtubeUrl: "https://www.youtube.com/watch?v=RKXQy3KhKOs",
-      lyrics: `Chorus
-         E                E
-I'm free, I'm free, 
-             B                                       E
-I'm free to be a servant of the Lord (2x)
-
-            A                          E
-He taught me how to praise Him
-            A                        E
-He taught me how to sing a song
-           A                    E
-He taught how to love
-           A                 B                     E
-I'm free to be a servant of the Lord
-
-Shared from Melody of Angels - Good Tree Church`
-    }
-  ];
-
-  const oct1Songs = [
-    {
-      title: "Mercy Is Falling (Song #253)",
-      youtubeUrl: "https://www.youtube.com/watch?v=HXip3WshDog",
-      lyrics: `Verse 1
-  E       A 
-Mercy is falling 
-    E            B 
-Is falling - is falling 
-  E        A 
-Mercy, it falls 
-          C#m           B 
-Like the sweet spring rain 
-  E       A 
-Mercy is falling 
-     E          B   E 
-Is falling all over me 
-
-Chorus
-  E 
-Hey-oh 
-     A          B 
-I receive Your mercy 
- E 
-Hey-oh 
-     C#m         B 
-I receive Your grace 
- E 
-Hey-oh 
-        A       B    E 
-I will dance forevermore
-
-Shared from Melody of Angels - Good Tree Church`
-    }
-  ];
+  const [selectedService, setSelectedService] = useState<'oct8' | 'oct15'>('oct8');
 
   const oct8Songs = [
     {
@@ -104,8 +45,17 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const currentSongs = selectedService === 'sept10' ? sept10Songs : 
-                      selectedService === 'oct1' ? oct1Songs : oct8Songs;
+  const oct15Songs = [
+    {
+      title: "Salamat, Salamat (Song #342)",
+      youtubeUrl: "https://www.youtube.com/watch?v=Z_2sCkjESDg",
+      lyrics: `[Please add the song lyrics here]
+
+Shared from Melody of Angels - Good Tree Church`
+    }
+  ];
+
+  const currentSongs = selectedService === 'oct8' ? oct8Songs : oct15Songs;
 
   // Date-based access control
   const today = new Date();
@@ -113,19 +63,16 @@ Shared from Melody of Angels - Good Tree Church`
   const currentDate = today.getDate();
   const currentMonth = today.getMonth(); // 0-based (8 = September)
   
-  // Sept 10 lineup: no longer accessible
-  const canAccessSept10 = false;
-  
-  // Oct 1 lineup: no longer accessible
-  const canAccessOct1 = false;
-  
   // Oct 8 lineup: accessible now through Oct 10 (Thursday after)
   const canAccessOct8 = true;
+  
+  // Oct 15 lineup: accessible from Oct 10 (next Thursday) onwards
+  const canAccessOct15 = currentMonth === 9 && currentDate >= 10;
 
   // Calculate dynamic stats
-  const availableLineups = (canAccessSept10 ? 1 : 0) + 1 + 1; // Oct 1 and Oct 8 are always visible
-  const accessibleLineups = (canAccessSept10 ? 1 : 0) + (canAccessOct1 ? 1 : 0) + (canAccessOct8 ? 1 : 0);
-  const totalSongs = (canAccessSept10 ? sept10Songs.length : 0) + (canAccessOct1 ? oct1Songs.length : 0) + (canAccessOct8 ? oct8Songs.length : 0);
+  const availableLineups = 2; // Oct 8 and Oct 15
+  const accessibleLineups = (canAccessOct8 ? 1 : 0) + (canAccessOct15 ? 1 : 0);
+  const totalSongs = (canAccessOct8 ? oct8Songs.length : 0) + (canAccessOct15 ? oct15Songs.length : 0);
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -156,31 +103,6 @@ Shared from Melody of Angels - Good Tree Church`
         <div className="max-w-md mx-auto space-y-6">
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
-          {canAccessSept10 && (
-            <ServiceCard
-              date="Sept. 10"
-              title="Wednesday Praise and Worship"
-              status="upcoming"
-              songCount={1}
-              onClick={() => {
-                setSelectedService('sept10');
-                setShowSongs(true);
-              }}
-            />
-          )}
-
-          <ServiceCard 
-            date="Oct. 1"
-            title="Wednesday Praise and Worship"
-            status="upcoming"
-            songCount={1}
-            onClick={canAccessOct1 ? () => {
-              setSelectedService('oct1');
-              setShowSongs(true);
-            } : undefined}
-            locked={!canAccessOct1}
-          />
-
           <ServiceCard 
             date="Oct. 8"
             title="Wednesday Praise and Worship"
@@ -191,6 +113,18 @@ Shared from Melody of Angels - Good Tree Church`
               setShowSongs(true);
             } : undefined}
             locked={!canAccessOct8}
+          />
+
+          <ServiceCard 
+            date="Oct. 15"
+            title="Wednesday Praise and Worship"
+            status="upcoming"
+            songCount={1}
+            onClick={canAccessOct15 ? () => {
+              setSelectedService('oct15');
+              setShowSongs(true);
+            } : undefined}
+            locked={!canAccessOct15}
           />
 
           <HowToUse />
