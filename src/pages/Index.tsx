@@ -118,18 +118,6 @@ Shared from Melody of Angels - Good Tree Church`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard 
-            date="Oct. 29"
-            title="Wednesday Praise and Worship"
-            status="upcoming"
-            songCount={1}
-            onClick={canAccessOct29 ? () => {
-              setSelectedService('oct29');
-              setShowSongs(true);
-            } : undefined}
-            locked={!canAccessOct29}
-          />
-
-          <ServiceCard 
             date="Oct. 15"
             title="Wednesday Praise and Worship"
             status="upcoming"
@@ -139,6 +127,18 @@ Shared from Melody of Angels - Good Tree Church`
               setShowSongs(true);
             } : undefined}
             locked={!canAccessOct15}
+          />
+
+          <ServiceCard 
+            date="Oct. 29"
+            title="Wednesday Praise and Worship"
+            status="upcoming"
+            songCount={1}
+            onClick={canAccessOct29 ? () => {
+              setSelectedService('oct29');
+              setShowSongs(true);
+            } : undefined}
+            locked={!canAccessOct29}
           />
 
           <HowToUse />
