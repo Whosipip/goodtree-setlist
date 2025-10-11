@@ -77,11 +77,11 @@ Shared from Melody of Angels - Good Tree Church`
   const currentDate = today.getDate();
   const currentMonth = today.getMonth(); // 0-based (8 = September)
   
-  // Oct 29 lineup: accessible now
-  const canAccessOct29 = true;
-  
   // Oct 15 lineup: accessible from Oct 10 (next Thursday) onwards
   const canAccessOct15 = currentMonth === 9 && currentDate >= 10;
+  
+  // Oct 29 lineup: accessible from Oct 23 onwards
+  const canAccessOct29 = currentMonth === 9 && currentDate >= 23;
 
   // Calculate dynamic stats
   const availableLineups = 2; // Oct 29 and Oct 15
