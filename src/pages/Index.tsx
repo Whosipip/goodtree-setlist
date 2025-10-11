@@ -7,39 +7,53 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const [selectedService, setSelectedService] = useState<'oct8' | 'oct15'>('oct8');
+  const [selectedService, setSelectedService] = useState<'oct29' | 'oct15'>('oct29');
 
-  const oct8Songs = [
+  const oct29Songs = [
     {
-      title: "Langit (Song #332)",
-      youtubeUrl: "https://www.youtube.com/watch?v=lxtHtbrjsJ4",
+      title: "Trading My Sorrow (Song #377)",
+      youtubeUrl: "https://www.youtube.com/watch?v=RvTg2WFTHyE",
       lyrics: `Verse 1
-A                                                      C#m
-Ang kailangan ko ay ang pag-ibig Mo 
-     Bm                                     Esus
-O Diyos sa buhay kong ito 
-                                                        C#m
-Ang kagalakan Mo ay kalakasan ko 
-  Bm                    Esus
-Ikaw ang nais ko 
-           D                          C#m 
-Ikaw lamang ang pupurihin
-          Bm                             Esus 
-Ang pangalan Mo'y dadakilain 
-      D                             C#m
-Wala na Sayo'y maihahambing 
-                   Bm                          Esus
-Ang awit ko'y Iyong dinggin 
+A         D               F#m  E  A       D               F#m  E
+I'm trading my sorrow, I'm trading my shame
+A        D                  F#m
+I'm laying them down
+                 E                 A-D-F#m-E
+For the joy of the Lord
+A          D                F#m  E  A      D            F#m  E
+I'm trading my sickness, I'm trading my pain
+A         D                 F#m
+I'm laying them down
+                  E             A-D-F#m-E
+For the joy of the Lord
 
 Chorus
-A                   C#m         Bm
-Langit ang aking nadarama 
-      E7                         A 
-Sa twing kapiling Ka
-              C#m                        Bm  
-Ang puso ko'y sumisigla 
-                  Esus
-Kapag Sayo'y sumsamba
+                  A
+We say Yes, Lord 
+   D                F#m
+Yes Lord, Yes Yes Lord
+   A                  D             F#m         E
+Yes Lord, Yes Lord, Yes Yes Lord
+A
+Amen
+
+Verse 2
+A                                     D
+I'm pressed but not crushed
+            F#m              E
+Persecuted not abandoned
+A                             D            F#m-E
+Struck down but not destroyed
+                 A                             D
+I am blessed beyond the curse
+                     F#m                 E
+For His promise will endure
+A                            D             F#m         E
+That His joy is going to be my strength
+E
+Though my sorrows may last for the night
+            G                             D
+His joy comes with the morning
 
 Shared from Melody of Angels - Good Tree Church`
     }
@@ -55,7 +69,7 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const currentSongs = selectedService === 'oct8' ? oct8Songs : oct15Songs;
+  const currentSongs = selectedService === 'oct29' ? oct29Songs : oct15Songs;
 
   // Date-based access control
   const today = new Date();
@@ -63,16 +77,16 @@ Shared from Melody of Angels - Good Tree Church`
   const currentDate = today.getDate();
   const currentMonth = today.getMonth(); // 0-based (8 = September)
   
-  // Oct 8 lineup: accessible now through Oct 10 (Thursday after)
-  const canAccessOct8 = true;
+  // Oct 29 lineup: accessible now
+  const canAccessOct29 = true;
   
   // Oct 15 lineup: accessible from Oct 10 (next Thursday) onwards
   const canAccessOct15 = currentMonth === 9 && currentDate >= 10;
 
   // Calculate dynamic stats
-  const availableLineups = 2; // Oct 8 and Oct 15
-  const accessibleLineups = (canAccessOct8 ? 1 : 0) + (canAccessOct15 ? 1 : 0);
-  const totalSongs = (canAccessOct8 ? oct8Songs.length : 0) + (canAccessOct15 ? oct15Songs.length : 0);
+  const availableLineups = 2; // Oct 29 and Oct 15
+  const accessibleLineups = (canAccessOct29 ? 1 : 0) + (canAccessOct15 ? 1 : 0);
+  const totalSongs = (canAccessOct29 ? oct29Songs.length : 0) + (canAccessOct15 ? oct15Songs.length : 0);
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -104,15 +118,15 @@ Shared from Melody of Angels - Good Tree Church`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard 
-            date="Oct. 8"
+            date="Oct. 29"
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
-            onClick={canAccessOct8 ? () => {
-              setSelectedService('oct8');
+            onClick={canAccessOct29 ? () => {
+              setSelectedService('oct29');
               setShowSongs(true);
             } : undefined}
-            locked={!canAccessOct8}
+            locked={!canAccessOct29}
           />
 
           <ServiceCard 
