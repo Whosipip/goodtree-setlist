@@ -62,8 +62,40 @@ Shared from Melody of Angels - Good Tree Church`
   const oct15Songs = [
     {
       title: "Salamat, Salamat (Song #342)",
-      youtubeUrl: "https://www.youtube.com/watch?v=Z_2sCkjESDg",
-      lyrics: `[Please add the song lyrics here]
+      youtubeUrl: "https://www.youtube.com/watch?v=wIh4nMdhtvc",
+      lyrics: `(Intro is only verse chords)
+Verse 1
+E                                  G#m                      A
+Kung aking mamasdan ang kalawakan
+                              B          E                   G#m
+Hindi ko maunawaan ang Iyong dahilan
+                      A                                     B  
+Kung bakit ako'y pinili Mo't inalagaan
+
+    G#m                   C#m   
+* Di ko kayang isipin
+                    G#m                         C#m
+   Hinding hindi ko kayang sukatin
+    A              E/G#
+   Ang pag-ibig Mo Hesus 
+            F#m                           B 
+   Na 'Yong binigay sa akin
+
+Chorus
+A                   B
+Salamat, Salamat 
+         G#m                           C#m     
+Oh! Hesus sa pag-ibig Mo
+F#m                             B 
+Walang ibang nagmahal sa akin na 
+     E               E7 
+Katulad Mo
+A                   B
+Salamat, Salamat 
+         G#sus                         C#m
+Oh! Hesus sa pag-ibig Mo
+A                          B                     E
+Ako'y magsasaya sa piling Mo
 
 Shared from Melody of Angels - Good Tree Church`
     }
