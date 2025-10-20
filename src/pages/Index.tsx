@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Music } from "lucide-react";
+import { Music, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 import { StatsCard } from "@/components/StatsCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { HowToUse } from "@/components/HowToUse";
 import { SongView } from "@/components/SongView";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
@@ -125,6 +127,20 @@ Shared from Melody of Angels - Good Tree Church`
   }
   return (
     <div className="min-h-screen bg-gradient-hero">
+      {/* Admin Access Button */}
+      <div className="absolute top-4 right-4">
+        <Link to="/admin/auth">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm animate-fade-in"
+          >
+            <Shield className="w-4 h-4 mr-2" />
+            Admin
+          </Button>
+        </Link>
+      </div>
+
       {/* Header */}
       <div className="text-center pt-8 pb-6">
         <div className="flex justify-center mb-4">
