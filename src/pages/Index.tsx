@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Music, Shield } from "lucide-react";
+import { Music, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { StatsCard } from "@/components/StatsCard";
 import { ServiceCard } from "@/components/ServiceCard";
@@ -132,11 +132,10 @@ Shared from Melody of Angels - Good Tree Church`
         <Link to="/admin/auth">
           <Button 
             variant="ghost" 
-            size="sm"
+            size="icon"
             className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm animate-fade-in"
           >
-            <Shield className="w-4 h-4 mr-2" />
-            Admin
+            <ArrowLeft className="w-4 h-4" />
           </Button>
         </Link>
       </div>
