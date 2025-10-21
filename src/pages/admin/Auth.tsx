@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Music } from "lucide-react";
+import { Music, ArrowLeft } from "lucide-react";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -64,6 +64,19 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+      {/* Return to Main Page Button */}
+      <div className="absolute top-4 left-4">
+        <Link to="/">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+        </Link>
+      </div>
+
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
