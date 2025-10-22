@@ -1,4 +1,4 @@
-import { Home, ListMusic, Calendar, Users, FileText, BookOpen, HelpCircle, MessageSquare, Mail } from "lucide-react";
+import { Home, Music, ListMusic, Calendar, Settings, BookOpen } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -17,23 +17,13 @@ const dashboardItems = [
 ];
 
 const servicesItems = [
+  { title: "Song Library", url: "/admin/songs", icon: BookOpen },
   { title: "Setlists", url: "/admin/setlists", icon: ListMusic },
-  { title: "Service Management", url: "/admin/services", icon: Calendar, badge: "New" },
-  { title: "Song Frequency", url: "/admin/frequency", icon: ListMusic },
-  { title: "Song Library", url: "/admin/dashboard", icon: BookOpen },
-  { title: "Resource Library", url: "/admin/resources", icon: FileText },
-];
-
-const teamItems = [
-  { title: "Team Directory", url: "/admin/team", icon: Users },
-  { title: "Song Management", url: "/admin/dashboard", icon: ListMusic },
+  { title: "Service Management", url: "/admin/services", icon: Calendar },
 ];
 
 const supportItems = [
-  { title: "Tutorials", url: "/admin/tutorials", icon: BookOpen },
-  { title: "FAQ", url: "/admin/faq", icon: HelpCircle },
-  { title: "Feedback", url: "/admin/feedback", icon: MessageSquare },
-  { title: "Contact", url: "/admin/contact", icon: Mail },
+  { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
 export function AdminSidebar() {
@@ -87,41 +77,11 @@ export function AdminSidebar() {
         {/* Services Section */}
         <SidebarGroup>
           <SidebarGroupLabel className="px-6 text-xs uppercase text-muted-foreground font-semibold">
-            Services
+            Music
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {servicesItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavClass}>
-                      <item.icon className="w-4 h-4" />
-                      {!isCollapsed && (
-                        <span className="flex items-center gap-2">
-                          {item.title}
-                          {item.badge && (
-                            <span className="ml-auto text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">
-                              {item.badge}
-                            </span>
-                          )}
-                        </span>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Team Section */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-6 text-xs uppercase text-muted-foreground font-semibold">
-            Team
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {teamItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavClass}>

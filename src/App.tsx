@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminAuth from "./pages/admin/Auth";
 import AdminDashboard from "./pages/admin/Dashboard";
+import SongLibrary from "./pages/admin/SongLibrary";
+import ServiceManagement from "./pages/admin/ServiceManagement";
+import Setlists from "./pages/admin/Setlists";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +23,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/songs" element={<SongLibrary />} />
+          <Route path="/admin/services" element={<ServiceManagement />} />
+          <Route path="/admin/setlists" element={<Setlists />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

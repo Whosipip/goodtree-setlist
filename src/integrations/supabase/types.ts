@@ -14,33 +14,168 @@ export type Database = {
   }
   public: {
     Tables: {
+      services: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          notes: string | null
+          service_date: string
+          service_time: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          service_date: string
+          service_time?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          service_date?: string
+          service_time?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      setlists: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          position: number
+          service_id: string
+          song_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          position: number
+          service_id: string
+          song_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          position?: number
+          service_id?: string
+          song_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "setlists_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "setlists_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       songs: {
         Row: {
+          category: string | null
           created_at: string
           id: string
+          last_used: string | null
           lyrics: string | null
           service_date: string
+          song_number: number | null
           title: string
           updated_at: string
+          usage_count: number | null
           youtube_url: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string
           id?: string
+          last_used?: string | null
           lyrics?: string | null
           service_date: string
+          song_number?: number | null
           title: string
           updated_at?: string
+          usage_count?: number | null
           youtube_url?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string
           id?: string
+          last_used?: string | null
           lyrics?: string | null
           service_date?: string
+          song_number?: number | null
           title?: string
           updated_at?: string
+          usage_count?: number | null
           youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      team_alerts: {
+        Row: {
+          alert_type: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+        }
+        Insert: {
+          alert_type?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+        }
+        Update: {
+          alert_type?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -49,10 +184,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -179,6 +320,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
