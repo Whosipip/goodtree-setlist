@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import SongLibrary from "./pages/admin/SongLibrary";
 import ServiceManagement from "./pages/admin/ServiceManagement";
 import Setlists from "./pages/admin/Setlists";
+import Settings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/admin/songs" element={<SongLibrary />} />
           <Route path="/admin/services" element={<ServiceManagement />} />
           <Route path="/admin/setlists" element={<Setlists />} />
+          <Route path="/admin/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
