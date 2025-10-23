@@ -193,7 +193,9 @@ const Setlists = () => {
     const suggestions = {
       "3p2w": { praise: 3, worship: 2 },
       "2p2w": { praise: 2, worship: 2 },
-      "2p3w": { praise: 2, worship: 3 }
+      "2p3w": { praise: 2, worship: 3 },
+      "1p1w": { praise: 1, worship: 1 },
+      "1p": { praise: 1, worship: 0 }
     };
 
     const config = suggestions[suggestion as keyof typeof suggestions];
@@ -338,6 +340,20 @@ const Setlists = () => {
                       onClick={() => applySuggestion("2p3w")}
                     >
                       2 Praise + 3 Worship
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => applySuggestion("1p1w")}
+                    >
+                      1 Praise + 1 Worship
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => applySuggestion("1p")}
+                    >
+                      1 Praise Only
                     </Button>
                   </CardContent>
                 </Card>
