@@ -95,7 +95,10 @@ export type Database = {
           created_at: string
           id: string
           last_used: string | null
+          locked_until: string | null
           lyrics: string | null
+          published: boolean | null
+          scheduled_for: string | null
           service_date: string
           song_number: number | null
           title: string
@@ -108,7 +111,10 @@ export type Database = {
           created_at?: string
           id?: string
           last_used?: string | null
+          locked_until?: string | null
           lyrics?: string | null
+          published?: boolean | null
+          scheduled_for?: string | null
           service_date: string
           song_number?: number | null
           title: string
@@ -121,7 +127,10 @@ export type Database = {
           created_at?: string
           id?: string
           last_used?: string | null
+          locked_until?: string | null
           lyrics?: string | null
+          published?: boolean | null
+          scheduled_for?: string | null
           service_date?: string
           song_number?: number | null
           title?: string

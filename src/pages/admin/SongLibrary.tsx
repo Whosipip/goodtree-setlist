@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, Search } from "lucide-react";
+import { Pencil, Trash2, Plus, Search, Globe, Lock } from "lucide-react";
 import { format } from "date-fns";
 
 interface Song {
@@ -26,6 +26,9 @@ interface Song {
   last_used: string | null;
   usage_count: number;
   service_date: string;
+  published: boolean;
+  scheduled_for: string | null;
+  locked_until: string | null;
 }
 
 const SongLibrary = () => {
@@ -44,7 +47,10 @@ const SongLibrary = () => {
     youtube_url: "",
     lyrics: "",
     category: "Praise",
-    service_date: new Date().toISOString().split('T')[0]
+    service_date: new Date().toISOString().split('T')[0],
+    published: false,
+    scheduled_for: "",
+    locked_until: ""
   });
 
   useEffect(() => {
@@ -151,7 +157,10 @@ const SongLibrary = () => {
       youtube_url: song.youtube_url || "",
       lyrics: song.lyrics || "",
       category: song.category,
-      service_date: song.service_date
+      service_date: song.service_date,
+      published: song.published || false,
+      scheduled_for: song.scheduled_for || "",
+      locked_until: song.locked_until || ""
     });
     setDialogOpen(true);
   };
@@ -163,7 +172,10 @@ const SongLibrary = () => {
       youtube_url: "",
       lyrics: "",
       category: "Praise",
-      service_date: new Date().toISOString().split('T')[0]
+      service_date: new Date().toISOString().split('T')[0],
+      published: false,
+      scheduled_for: "",
+      locked_until: ""
     });
   };
 
@@ -244,6 +256,54 @@ const SongLibrary = () => {
                         className="font-mono text-sm"
                       />
                     </div>
+                    <div className="border-t pt-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Globe className="w-4 h-4" />
+                        <Label className="text-base font-semibold">Publishing Settings</Label>
+                      </div>
+                      <div className="space-y-4 pl-6">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id="published"
+                            checked={formData.published}
+                            onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                            className="w-4 h-4"
+                          />
+                          <Label htmlFor="published" className="cursor-pointer">
+                            Publish to main page
+                          </Label>
+                        </div>
+                        {formData.published && (
+                          <>
+                            <div>
+                              <Label htmlFor="scheduled_for">Scheduled For</Label>
+                              <Input
+                                id="scheduled_for"
+                                type="date"
+                                value={formData.scheduled_for}
+                                onChange={(e) => setFormData({ ...formData, scheduled_for: e.target.value })}
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                When this song will be performed
+                              </p>
+                            </div>
+                            <div>
+                              <Label htmlFor="locked_until">Lock Until</Label>
+                              <Input
+                                id="locked_until"
+                                type="date"
+                                value={formData.locked_until}
+                                onChange={(e) => setFormData({ ...formData, locked_until: e.target.value })}
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Song will be hidden from main page until this date
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
                     <div className="flex justify-end gap-2">
                       <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                         Cancel
@@ -292,6 +352,7 @@ const SongLibrary = () => {
                       <TableHead>#</TableHead>
                       <TableHead>Title</TableHead>
                       <TableHead>Category</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Last Used</TableHead>
                       <TableHead>Usage Count</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -306,6 +367,19 @@ const SongLibrary = () => {
                           <Badge variant={song.category === "Praise" ? "default" : "secondary"}>
                             {song.category}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {song.published ? (
+                            <div className="flex items-center gap-1">
+                              <Globe className="w-3 h-3 text-green-600" />
+                              <span className="text-xs text-green-600">Published</span>
+                              {song.locked_until && new Date(song.locked_until) > new Date() && (
+                                <Lock className="w-3 h-3 text-orange-600 ml-1" />
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Draft</span>
+                          )}
                         </TableCell>
                         <TableCell>
                           {song.last_used 
