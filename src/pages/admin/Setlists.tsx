@@ -56,8 +56,29 @@ const Setlists = () => {
   }, [selectedService]);
 
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        navigate("/admin/auth");
+        return;
+      }
+
+      // Check if user has admin role
+      const { data: hasAdminRole, error: roleError } = await supabase
+        .rpc('has_role', { _user_id: session.user.id, _role: 'admin' });
+
+      if (roleError || !hasAdminRole) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have permission to access this page",
+          variant: "destructive",
+        });
+        navigate("/");
+        return;
+      }
+    } catch (error: any) {
+      console.error("Auth check error:", error);
       navigate("/admin/auth");
     }
   };
