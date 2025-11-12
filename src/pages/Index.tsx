@@ -7,7 +7,7 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const [selectedService, setSelectedService] = useState<'sept10' | 'oct1' | 'oct8'>('sept10');
+  const [selectedService, setSelectedService] = useState<'sept10' | 'nov19'>('sept10');
 
   const sept10Songs = [
     {
@@ -32,100 +32,58 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const oct1Songs = [
+  const nov19Songs = [
     {
-      title: "Mercy Is Falling (Song #253)",
-      youtubeUrl: "https://www.youtube.com/watch?v=HXip3WshDog",
+      title: "Trading My Sorrows (Song #360)",
+      youtubeUrl: "https://www.youtube.com/watch?v=example",
       lyrics: `Verse 1
-  E       A 
-Mercy is falling 
-    E            B 
-Is falling - is falling 
-  E        A 
-Mercy, it falls 
-          C#m           B 
-Like the sweet spring rain 
-  E       A 
-Mercy is falling 
-     E          B   E 
-Is falling all over me 
+I'm trading my sorrows
+I'm trading my shame
+I'm laying them down
+For the joy of the Lord
+
+I'm trading my sickness
+I'm trading my pain
+I'm laying them down
+For the joy of the Lord
 
 Chorus
-  E 
-Hey-oh 
-     A          B 
-I receive Your mercy 
- E 
-Hey-oh 
-     C#m         B 
-I receive Your grace 
- E 
-Hey-oh 
-        A       B    E 
-I will dance forevermore
+Yes Lord, Yes Lord
+Yes, Yes Lord
+Yes Lord, Yes Lord
+Yes, Yes Lord
+Yes Lord, Yes Lord
+Yes, Yes Lord Amen
+
+I am pressed but not crushed
+Persecuted not abandoned
+Struck down but not destroyed
+I am blessed beyond the curse
+For His promise will endure
+That His joy's gonna be my strength
 
 Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const oct8Songs = [
-    {
-      title: "Langit (Song #332)",
-      youtubeUrl: "https://www.youtube.com/watch?v=lxtHtbrjsJ4",
-      lyrics: `Verse 1
-A                                                      C#m
-Ang kailangan ko ay ang pag-ibig Mo 
-     Bm                                     Esus
-O Diyos sa buhay kong ito 
-                                                        C#m
-Ang kagalakan Mo ay kalakasan ko 
-  Bm                    Esus
-Ikaw ang nais ko 
-           D                          C#m 
-Ikaw lamang ang pupurihin
-          Bm                             Esus 
-Ang pangalan Mo'y dadakilain 
-      D                             C#m
-Wala na Sayo'y maihahambing 
-                   Bm                          Esus
-Ang awit ko'y Iyong dinggin 
-
-Chorus
-A                   C#m         Bm
-Langit ang aking nadarama 
-      E7                         A 
-Sa twing kapiling Ka
-              C#m                        Bm  
-Ang puso ko'y sumisigla 
-                  Esus
-Kapag Sayo'y sumsamba
-
-Shared from Melody of Angels - Good Tree Church`
-    }
-  ];
-
-  const currentSongs = selectedService === 'sept10' ? sept10Songs : 
-                      selectedService === 'oct1' ? oct1Songs : oct8Songs;
+  const currentSongs = selectedService === 'sept10' ? sept10Songs : nov19Songs;
 
   // Date-based access control
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0 = Sunday, 4 = Thursday
   const currentDate = today.getDate();
-  const currentMonth = today.getMonth(); // 0-based (8 = September)
+  const currentMonth = today.getMonth(); // 0-based (10 = November)
   
   // Sept 10 lineup: accessible Thursday through Sept 12 (Thursday after)
   const canAccessSept10 = dayOfWeek >= 4 && !(currentMonth === 8 && currentDate >= 13);
   
-  // Oct 1 lineup: accessible from Sept 11 through Oct 3 (Thursday after)
-  const canAccessOct1 = (currentMonth === 8 && currentDate >= 11 && currentDate <= 26) || (currentMonth === 9 && currentDate <= 3);
-  
-  // Oct 8 lineup: accessible from Oct 3 (Thursday after Oct 1) through Oct 10 (Thursday after)
-  const canAccessOct8 = currentMonth === 9 && currentDate >= 3 && currentDate <= 10;
+  // Nov 19 lineup: accessible today and onwards
+  const canAccessNov19 = true;
 
   // Calculate dynamic stats
-  const availableLineups = (canAccessSept10 ? 1 : 0) + 1 + 1; // Oct 1 and Oct 8 are always visible
-  const accessibleLineups = (canAccessSept10 ? 1 : 0) + (canAccessOct1 ? 1 : 0) + (canAccessOct8 ? 1 : 0);
-  const totalSongs = (canAccessSept10 ? sept10Songs.length : 0) + (canAccessOct1 ? oct1Songs.length : 0) + (canAccessOct8 ? oct8Songs.length : 0);
+  const availableLineups = (canAccessSept10 ? 1 : 0) + 1; // Nov 19 is always visible
+  const accessibleLineups = (canAccessSept10 ? 1 : 0) + (canAccessNov19 ? 1 : 0);
+  const totalSongs = (canAccessSept10 ? sept10Songs.length : 0) + (canAccessNov19 ? nov19Songs.length : 0);
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -170,27 +128,15 @@ Shared from Melody of Angels - Good Tree Church`
           )}
 
           <ServiceCard 
-            date="Oct. 1"
+            date="Nov. 19"
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
-            onClick={canAccessOct1 ? () => {
-              setSelectedService('oct1');
+            onClick={() => {
+              setSelectedService('nov19');
               setShowSongs(true);
-            } : undefined}
-            locked={!canAccessOct1}
-          />
-
-          <ServiceCard 
-            date="Oct. 8"
-            title="Wednesday Praise and Worship"
-            status="upcoming"
-            songCount={1}
-            onClick={canAccessOct8 ? () => {
-              setSelectedService('oct8');
-              setShowSongs(true);
-            } : undefined}
-            locked={!canAccessOct8}
+            }}
+            locked={false}
           />
 
           <HowToUse />
