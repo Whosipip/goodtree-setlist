@@ -34,54 +34,49 @@ Shared from Melody of Angels - Good Tree Church`
 
   const nov19Songs = [
     {
-      title: "Trading My Sorrows (Song #360)",
-      youtubeUrl: "https://www.youtube.com/watch?v=example",
+      title: "Trading My Sorrows (Song #377)",
+      youtubeUrl: "https://www.youtube.com/watch?v=RvTg2WFTHyE",
       lyrics: `Verse 1
-  C                    G
-I'm trading my sorrows
-  Am                  F
-I'm trading my shame
-  C                G
+A         D               F#m  E  A       D               F#m  E
+I'm trading my sorrow, I'm trading my shame
+A        D                  F#m
 I'm laying them down
-         Am            F
+                 E                 A-D-F#m-E
 For the joy of the Lord
-
-  C                     G
-I'm trading my sickness
-  Am                 F
-I'm trading my pain
-  C                G
+A          D                F#m  E  A      D            F#m  E
+I'm trading my sickness, I'm trading my pain
+A         D                 F#m
 I'm laying them down
-         Am            F
+                  E             A-D-F#m-E
 For the joy of the Lord
 
 Chorus
-C              G
-Yes Lord, Yes Lord
-Am    F
-Yes, Yes Lord
-C              G
-Yes Lord, Yes Lord
-Am    F
-Yes, Yes Lord
-C              G
-Yes Lord, Yes Lord
-Am    F        C
-Yes, Yes Lord Amen
+                  A
+We say Yes, Lord 
+   D                F#m
+Yes Lord, Yes Yes Lord
+   A                  D             F#m         E
+Yes Lord, Yes Lord, Yes Yes Lord
+A
+Amen
 
-Bridge
-  C                      G
-I am pressed but not crushed
-  Am                      F
+Verse 2
+A                                     D
+I'm pressed but not crushed
+            F#m              E
 Persecuted not abandoned
-  C                     G
+A                             D            F#m-E
 Struck down but not destroyed
-  Am                          F
+                 A                             D
 I am blessed beyond the curse
-        C                   G
+                     F#m                 E
 For His promise will endure
-         Am              F         C
-That His joy's gonna be my strength
+A                            D             F#m         E
+That His joy is going to be my strength
+E
+Though my sorrows may last for the night
+            G                             D
+His joy comes with the morning
 
 Shared from Melody of Angels - Good Tree Church`
     }
