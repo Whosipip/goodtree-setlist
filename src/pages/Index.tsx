@@ -37,29 +37,50 @@ Shared from Melody of Angels - Good Tree Church`
       title: "Trading My Sorrows (Song #360)",
       youtubeUrl: "https://www.youtube.com/watch?v=example",
       lyrics: `Verse 1
+  C                    G
 I'm trading my sorrows
+  Am                  F
 I'm trading my shame
+  C                G
 I'm laying them down
+         Am            F
 For the joy of the Lord
 
+  C                     G
 I'm trading my sickness
+  Am                 F
 I'm trading my pain
+  C                G
 I'm laying them down
+         Am            F
 For the joy of the Lord
 
 Chorus
+C              G
 Yes Lord, Yes Lord
+Am    F
 Yes, Yes Lord
+C              G
 Yes Lord, Yes Lord
+Am    F
 Yes, Yes Lord
+C              G
 Yes Lord, Yes Lord
+Am    F        C
 Yes, Yes Lord Amen
 
+Bridge
+  C                      G
 I am pressed but not crushed
+  Am                      F
 Persecuted not abandoned
+  C                     G
 Struck down but not destroyed
+  Am                          F
 I am blessed beyond the curse
+        C                   G
 For His promise will endure
+         Am              F         C
 That His joy's gonna be my strength
 
 Shared from Melody of Angels - Good Tree Church`
