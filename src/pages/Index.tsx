@@ -7,9 +7,9 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const [selectedService, setSelectedService] = useState<'sept10' | 'nov19'>('sept10');
+  const [selectedService, setSelectedService] = useState<'nov25' | 'nov19'>('nov25');
 
-  const sept10Songs = [
+  const nov25Songs = [
     {
       title: "I'm Free (Song #294)",
       youtubeUrl: "https://www.youtube.com/watch?v=RKXQy3KhKOs",
@@ -82,24 +82,16 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const currentSongs = selectedService === 'sept10' ? sept10Songs : nov19Songs;
+  const currentSongs = selectedService === 'nov25' ? nov25Songs : nov19Songs;
 
   // Date-based access control
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 = Sunday, 4 = Thursday
-  const currentDate = today.getDate();
-  const currentMonth = today.getMonth(); // 0-based (10 = November)
-  
-  // Sept 10 lineup: accessible Thursday through Sept 12 (Thursday after)
-  const canAccessSept10 = dayOfWeek >= 4 && !(currentMonth === 8 && currentDate >= 13);
-  
-  // Nov 19 lineup: accessible today and onwards
+  const canAccessNov25 = true; // Nov 25 is now accessible
   const canAccessNov19 = true;
 
   // Calculate dynamic stats
-  const availableLineups = (canAccessSept10 ? 1 : 0) + 1; // Nov 19 is always visible
-  const accessibleLineups = (canAccessSept10 ? 1 : 0) + (canAccessNov19 ? 1 : 0);
-  const totalSongs = (canAccessSept10 ? sept10Songs.length : 0) + (canAccessNov19 ? nov19Songs.length : 0);
+  const availableLineups = 2; // Both Nov 19 and Nov 25 are visible
+  const accessibleLineups = (canAccessNov25 ? 1 : 0) + (canAccessNov19 ? 1 : 0);
+  const totalSongs = (canAccessNov25 ? nov25Songs.length : 0) + (canAccessNov19 ? nov19Songs.length : 0);
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -130,14 +122,14 @@ Shared from Melody of Angels - Good Tree Church`
         <div className="max-w-md mx-auto space-y-6">
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
-          {canAccessSept10 && (
+          {canAccessNov25 && (
             <ServiceCard
-              date="Sept. 10"
+              date="Nov. 25"
               title="Wednesday Praise and Worship"
               status="upcoming"
               songCount={1}
               onClick={() => {
-                setSelectedService('sept10');
+                setSelectedService('nov25');
                 setShowSongs(true);
               }}
             />
