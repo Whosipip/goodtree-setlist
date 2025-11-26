@@ -8,35 +8,49 @@ import { SongView } from "@/components/SongView";
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
 
-  const nov25Songs = [
+  const dec3Songs = [
     {
-      title: "I'm Free (Song #294)",
-      youtubeUrl: "https://www.youtube.com/watch?v=RKXQy3KhKOs",
-      lyrics: `Chorus
-         E                E
-I'm free, I'm free, 
-             B                                       E
-I'm free to be a servant of the Lord (2x)
+      title: "Langit (Song #332)",
+      youtubeUrl: "https://www.youtube.com/watch?v=your-link-here",
+      lyrics: `A & G
+Verse 1
+A                                                      C#m
+Ang kailangan ko ay ang pag-ibig Mo 
+     Bm                                     Esus
+O Diyos sa buhay kong ito 
+                                                        C#m
+Ang kagalakan Mo ay kalakasan ko 
+  Bm                    Esus
+Ikaw ang nais ko 
+           D                          C#m 
+Ikaw lamang ang pupurihin
+          Bm                             Esus 
+Ang pangalan Mo'y dadakilain 
+      D                             C#m
+Wala na Sayo'y maihahambing 
+                   Bm                          Esus
+Ang awit ko'y Iyong dinggin 
 
-            A                          E
-He taught me how to praise Him
-            A                        E
-He taught me how to sing a song
-           A                    E
-He taught how to love
-           A                 B                     E
-I'm free to be a servant of the Lord
+Chorus
+A                   C#m         Bm
+Langit ang aking nadarama 
+      E7                         A 
+Sa twing kapiling Ka
+              C#m                        Bm  
+Ang puso ko'y sumisigla 
+                  Esus
+Kapag Sayo'y sumsamba
 
 Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const currentSongs = nov25Songs;
+  const currentSongs = dec3Songs;
 
   // Calculate dynamic stats
   const availableLineups = 1;
   const accessibleLineups = 1;
-  const totalSongs = nov25Songs.length;
+  const totalSongs = dec3Songs.length;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -68,7 +82,7 @@ Shared from Melody of Angels - Good Tree Church`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard
-            date="Nov. 25"
+            date="Dec. 3"
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
