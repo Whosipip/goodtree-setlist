@@ -11,7 +11,7 @@ const Index = () => {
   const dec3Songs = [
     {
       title: "Langit (Song #332)",
-      youtubeUrl: "https://www.youtube.com/watch?v=your-link-here",
+      youtubeUrl: "https://www.youtube.com/watch?v=lxtHtbrjsJ4",
       lyrics: `A & G
 Verse 1
 A                                                      C#m
