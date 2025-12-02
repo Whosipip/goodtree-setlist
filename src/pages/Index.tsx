@@ -8,49 +8,50 @@ import { SongView } from "@/components/SongView";
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
 
-  const dec3Songs = [
+  const dec10Songs = [
     {
-      title: "Langit (Song #332)",
-      youtubeUrl: "https://www.youtube.com/watch?v=lxtHtbrjsJ4",
-      lyrics: `A & G
-Verse 1
-A                                                      C#m
-Ang kailangan ko ay ang pag-ibig Mo 
-     Bm                                     Esus
-O Diyos sa buhay kong ito 
-                                                        C#m
-Ang kagalakan Mo ay kalakasan ko 
-  Bm                    Esus
-Ikaw ang nais ko 
-           D                          C#m 
-Ikaw lamang ang pupurihin
-          Bm                             Esus 
-Ang pangalan Mo'y dadakilain 
-      D                             C#m
-Wala na Sayo'y maihahambing 
-                   Bm                          Esus
-Ang awit ko'y Iyong dinggin 
+      title: "Faith",
+      youtubeUrl: "https://www.youtube.com/watch?v=GOr46CLT2-Q&list=RDGOr46CLT2-Q&start_radio=1",
+      lyrics: `[Verse 1]
+Em
+I'm reaching for the prize
+I'm giving everything
+Em                                                     B
+I give my life for this, It's what I live for
+Em
+Nothing will keep me from
+All that You have for me
+Am   
+You hold my head up high
+      B
+I live for You
 
-Chorus
-A                   C#m         Bm
-Langit ang aking nadarama 
-      E7                         A 
-Sa twing kapiling Ka
-              C#m                        Bm  
-Ang puso ko'y sumisigla 
-                  Esus
-Kapag Sayo'y sumsamba
+[Pre-Chorus]
+Em                 D                           C
+Greater is He that's living in me
+                             B
+Than he that is in the world
 
-Shared from Melody of Angels - Good Tree Church`
+[Chorus]
+Em                                   B
+Faith, I can move the mountain
+                        Am                            B
+I can do all things through Christ I know
+Em                                   B
+Faith, Standing and believing
+                           Am
+I can do all things
+                                          B
+Through Christ who strengthens me`
     }
   ];
 
-  const currentSongs = dec3Songs;
+  const currentSongs = dec10Songs;
 
   // Calculate dynamic stats
   const availableLineups = 1;
   const accessibleLineups = 1;
-  const totalSongs = dec3Songs.length;
+  const totalSongs = dec10Songs.length;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -82,7 +83,7 @@ Shared from Melody of Angels - Good Tree Church`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard
-            date="Dec. 3"
+            date="Dec. 10"
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
