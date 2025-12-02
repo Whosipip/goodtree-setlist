@@ -7,6 +7,7 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
+  const [currentService, setCurrentService] = useState<'dec3' | 'dec10'>('dec3');
 
   const dec3Songs = [
     {
@@ -45,12 +46,50 @@ Shared from Melody of Angels - Good Tree Church`
     }
   ];
 
-  const currentSongs = dec3Songs;
+  const dec10Songs = [
+    {
+      title: "Faith",
+      youtubeUrl: "https://www.youtube.com/watch?v=GOr46CLT2-Q&list=RDGOr46CLT2-Q&start_radio=1",
+      lyrics: `[Verse 1]
+Em
+I'm reaching for the prize
+I'm giving everything
+Em                                                     B
+I give my life for this, It's what I live for
+Em
+Nothing will keep me from
+All that You have for me
+Am   
+You hold my head up high
+      B
+I live for You
+
+[Pre-Chorus]
+Em                 D                           C
+Greater is He that's living in me
+                             B
+Than he that is in the world
+
+[Chorus]
+Em                                   B
+Faith, I can move the mountain
+                        Am                            B
+I can do all things through Christ I know
+Em                                   B
+Faith, Standing and believing
+                           Am
+I can do all things
+                                          B
+Through Christ who strengthens me`
+    }
+  ];
+
+  const currentSongs = currentService === 'dec3' ? dec3Songs : dec10Songs;
 
   // Calculate dynamic stats
-  const availableLineups = 1;
-  const accessibleLineups = 1;
-  const totalSongs = dec3Songs.length;
+  const availableLineups = 2;
+  const accessibleLineups = 2;
+  const totalSongs = dec3Songs.length + dec10Songs.length;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -86,7 +125,21 @@ Shared from Melody of Angels - Good Tree Church`
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
-            onClick={() => setShowSongs(true)}
+            onClick={() => {
+              setCurrentService('dec3');
+              setShowSongs(true);
+            }}
+          />
+
+          <ServiceCard
+            date="Dec. 10"
+            title="Wednesday Praise and Worship"
+            status="upcoming"
+            songCount={1}
+            onClick={() => {
+              setCurrentService('dec10');
+              setShowSongs(true);
+            }}
           />
 
           <HowToUse />
