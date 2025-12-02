@@ -161,7 +161,7 @@ export const SongView = ({ songs, onClose }: SongViewProps) => {
             </div>
             <div className="aspect-video">
               <iframe
-                src={currentSong.youtubeUrl.replace('watch?v=', 'embed/')}
+                src={currentSong.youtubeUrl.replace('watch?v=', 'embed/').split('&')[0]}
                 className="w-full h-full rounded-lg"
                 allowFullScreen
                 title={currentSong.title}
