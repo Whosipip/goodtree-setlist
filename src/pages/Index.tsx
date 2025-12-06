@@ -112,9 +112,9 @@ G                           D
 Which inspire your heav'nly song
 
 [Chorus]
-G  C  Em  D  G  D
+G  C  Em  D
 Glo-- -----  ria
-G           D
+G  C  D  G
 In excelsis deo
 
 [Verse 2]
