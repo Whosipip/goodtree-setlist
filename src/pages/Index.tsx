@@ -50,7 +50,7 @@ Through Christ who strengthens me`
   const dec18Songs = [
     {
       title: "Hark the Herald Angels Sing",
-      youtubeUrl: "https://youtu.be/xqooC4ZG75Y",
+      youtubeUrl: "https://www.youtube.com/watch?v=xqooC4ZG75Y",
       lyrics: `[Verse 1]
  G                     D      G     C      G   D    G
 Hark the herald angels sing, "Glory to the new born King
