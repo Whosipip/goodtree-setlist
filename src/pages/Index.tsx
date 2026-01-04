@@ -10,7 +10,7 @@ const Index = () => {
   const jan7Songs = [
     {
       title: "Mercy Is Falling",
-      youtubeUrl: "https://www.youtube.com/watch?v=ZxvHZ5RQGW4",
+      youtubeUrl: "https://www.youtube.com/watch?v=HXip3WshDog",
       lyrics: `[Verse 1]
   E       A 
 Mercy is falling 
