@@ -9,9 +9,35 @@ const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
   const jan7Songs = [
     {
-      title: "Mercy is Falling",
+      title: "Mercy Is Falling",
       youtubeUrl: "https://www.youtube.com/watch?v=ZxvHZ5RQGW4",
-      lyrics: `[Add lyrics with chords here]`
+      lyrics: `[Verse 1]
+  E       A 
+Mercy is falling 
+    E            B 
+Is falling - is falling 
+  E        A 
+Mercy, it falls 
+          C#m           B 
+Like the sweet spring rain 
+  E       A 
+Mercy is falling 
+     E          B   E 
+Is falling all over me 
+
+[Chorus]
+  E 
+Hey-oh 
+     A          B 
+I receive Your mercy 
+ E 
+Hey-oh 
+     C#m         B 
+I receive Your grace 
+ E 
+Hey-oh 
+        A       B    E 
+I will dance forevermore`
     }
   ];
 
