@@ -7,46 +7,22 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const jan7Songs = [
+  const jan14Songs = [
     {
-      title: "Mercy Is Falling",
-      youtubeUrl: "https://www.youtube.com/watch?v=HXip3WshDog",
-      lyrics: `[Verse 1]
-  E       A 
-Mercy is falling 
-    E            B 
-Is falling - is falling 
-  E        A 
-Mercy, it falls 
-          C#m           B 
-Like the sweet spring rain 
-  E       A 
-Mercy is falling 
-     E          B   E 
-Is falling all over me 
+      title: "Community Song",
+      youtubeUrl: "",
+      lyrics: `[Key of D]
 
-[Chorus]
-  E 
-Hey-oh 
-     A          B 
-I receive Your mercy 
- E 
-Hey-oh 
-     C#m         B 
-I receive Your grace 
- E 
-Hey-oh 
-        A       B    E 
-I will dance forevermore`
+(Please share the lyrics and chords)`
     }
   ];
 
-  const currentSongs = jan7Songs;
+  const currentSongs = jan14Songs;
 
   // Calculate dynamic stats
   const availableLineups = 1;
   const accessibleLineups = 1;
-  const totalSongs = jan7Songs.length;
+  const totalSongs = jan14Songs.length;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -78,7 +54,7 @@ I will dance forevermore`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard
-            date="Jan. 7"
+            date="Jan. 14"
             title="Tuesday Praise and Worship"
             status="upcoming"
             songCount={1}
