@@ -11,9 +11,29 @@ const Index = () => {
     {
       title: "Community Song",
       youtubeUrl: "",
-      lyrics: `[Key of D]
+      lyrics: `[Verse 1]
+ D
+It's I, It's I, It's I, who builds community
+                        A
+It's I, It's I, It's I, who builds community
+                        D
+It's I, It's I, It's I, who builds community
+                                G                               A7     D – D7
+It's I, who builds community
 
-(Please share the lyrics and chords)`
+La la la…..
+
+[Chorus]
+                   G                                    D
+Roll over the ocean, roll over the sea
+                A                                                                  D – A – D
+Go and do your part and build community
+                    G                                    D
+Roll over the ocean, roll over the sea
+                A                                                              D – A – D
+Go and do your part and build community
+
+*YOU  *US  *LOVE  *CHRIST`
     }
   ];
 
