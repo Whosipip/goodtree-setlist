@@ -7,42 +7,44 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const jan14Songs = [
+  const feb4Songs = [
     {
-      title: "Community Song",
-      youtubeUrl: "https://www.youtube.com/watch?v=G5y4PsAZVss",
+      title: "Lord I Lift Your Name on High",
+      youtubeUrl: "",
       lyrics: `[Verse 1]
- D
-It's I, It's I, It's I, who builds community
-                        A
-It's I, It's I, It's I, who builds community
-                        D
-It's I, It's I, It's I, who builds community
-                                G                               A7     D – D7
-It's I, who builds community
-
-La la la…..
+G         C                          G    C
+Lord I lift Your name on high
+G         C                          D       C    
+Lord I love to sing Your praises
+G         C                           G    C
+I'm so glad You're in my life
+G         C                           D    C   D
+I'm so glad You came to save us
 
 [Chorus]
-                   G                                    D
-Roll over the ocean, roll over the sea
-                A                                                                  D – A – D
-Go and do your part and build community
-                    G                                    D
-Roll over the ocean, roll over the sea
-                A                                                              D – A – D
-Go and do your part and build community
-
-*YOU  *US  *LOVE  *CHRIST`
+G                        C             D
+You came from heaven to earth
+      C            G
+To show the way
+                C                 D   
+From the earth to the cross
+       C         G
+My debt to pay
+                C                D
+From the cross to the grave
+                B7               C 
+From the grave to the sky
+           D                           G     C,D 
+Lord I lift Your name on high`
     }
   ];
 
-  const currentSongs = jan14Songs;
+  const currentSongs = feb4Songs;
 
   // Calculate dynamic stats
   const availableLineups = 1;
   const accessibleLineups = 1;
-  const totalSongs = jan14Songs.length;
+  const totalSongs = feb4Songs.length;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -74,7 +76,7 @@ Go and do your part and build community
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard
-            date="Jan. 14"
+            date="Feb. 4"
             title="Tuesday Praise and Worship"
             status="upcoming"
             songCount={1}
