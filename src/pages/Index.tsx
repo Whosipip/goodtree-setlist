@@ -7,44 +7,38 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const feb4Songs = [
+  const feb11Songs = [
     {
-      title: "Lord I Lift Your Name on High",
-      youtubeUrl: "https://youtu.be/2peqjozTTt4?si=oGNXJg-bGrVc17Br",
-      lyrics: `[Verse 1]
-G         C                          G    C
-Lord I lift Your name on high
-G         C                          D       C    
-Lord I love to sing Your praises
-G         C                           G    C
-I'm so glad You're in my life
-G         C                           D    C   D
-I'm so glad You came to save us
+      title: "I Love To Be In Your Presence (Song #551)",
+      youtubeUrl: "",
+      lyrics: `[Chorus]
+     G                            C
+I love to be in Your presence
+                     G                       D
+With Your people singing praises
+     G                          C
+I love to stand and rejoice
+               G            D                G
+Lift my hands and raise my voice
 
-[Chorus]
-G                        C             D
-You came from heaven to earth
-      C            G
-To show the way
-                C                 D   
-From the earth to the cross
-       C         G
-My debt to pay
-                C                D
-From the cross to the grave
-                B7               C 
-From the grave to the sky
-           D                           G     C,D 
-Lord I lift Your name on high`
+[Verse 1]
+C                    G
+You set my feet to dancing
+C                    G
+You fill my heart with songs
+F                       C              D
+You give me reason to rejoice
+D
+Rejoice!`
     }
   ];
 
-  const currentSongs = feb4Songs;
+  const currentSongs = feb11Songs;
 
   // Calculate dynamic stats
   const availableLineups = 1;
   const accessibleLineups = 1;
-  const totalSongs = feb4Songs.length;
+  const totalSongs = feb11Songs.length;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -76,8 +70,8 @@ Lord I lift Your name on high`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard
-            date="Feb. 4"
-            title="Tuesday Praise and Worship"
+            date="Feb. 11"
+            title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
             onClick={() => {
