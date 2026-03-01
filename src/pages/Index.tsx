@@ -7,38 +7,46 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const feb11Songs = [
+  const mar4Songs = [
     {
-      title: "I Love To Be In Your Presence (Song #551)",
-      youtubeUrl: "https://www.youtube.com/watch?v=33hsSW6MLpU",
-      lyrics: `[Chorus]
-     G                            C
-I love to be in Your presence
-                     G                       D
-With Your people singing praises
-     G                          C
-I love to stand and rejoice
-               G            D                G
-Lift my hands and raise my voice
+      title: "Langit (Song #332)",
+      youtubeUrl: "https://www.youtube.com/watch?v=PLACEHOLDER",
+      lyrics: `[Verse 1]
+A                                                      C#m
+Ang kailangan ko ay ang pag-ibig Mo
+     Bm                                     Esus
+O Diyos sa buhay kong ito
+                                                        C#m
+Ang kagalakan Mo ay kalakasan ko
+  Bm                    Esus
+Ikaw ang nais ko
+           D                          C#m
+Ikaw lamang ang pupurihin
+          Bm                             Esus
+Ang pangalan Mo'y dadakilain
+      D                             C#m
+Wala na Sayo'y maihahambing
+                   Bm                          Esus
+Ang awit ko'y Iyong dinggin
 
-[Verse 1]
-C                    G
-You set my feet to dancing
-C                    G
-You fill my heart with songs
-F                       C              D
-You give me reason to rejoice
-D
-Rejoice!`
+[Chorus]
+A                   C#m         Bm
+Langit ang aking nadarama
+      E7                         A
+Sa twing kapiling Ka
+              C#m                        Bm
+Ang puso ko'y sumisigla
+                  Esus
+Kapag Sayo'y sumasamba`
     }
   ];
 
-  const currentSongs = feb11Songs;
+  const currentSongs = mar4Songs;
 
   // Calculate dynamic stats
   const availableLineups = 1;
   const accessibleLineups = 1;
-  const totalSongs = feb11Songs.length;
+  const totalSongs = mar4Songs.length;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
@@ -70,7 +78,7 @@ Rejoice!`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard
-            date="Feb. 11"
+            date="Mar. 4"
             title="Wednesday Praise and Worship"
             status="upcoming"
             songCount={1}
