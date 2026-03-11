@@ -246,7 +246,7 @@ F Am Gm C`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard
-            date="Mar. 16"
+            date="Mar. 19"
             title="Thanksgiving Praise and Worship"
             status="upcoming"
             songCount={2}
