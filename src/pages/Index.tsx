@@ -7,49 +7,214 @@ import { SongView } from "@/components/SongView";
 
 const Index = () => {
   const [showSongs, setShowSongs] = useState(false);
-  const mar4Songs = [
+  const mar16Songs = [
     {
-      title: "Langit (Song #332)",
-      youtubeUrl: "https://www.youtube.com/watch?v=lxtHtbrjsJ4",
+      title: "Thank You, Lord",
+      youtubeUrl: "",
       lyrics: `[Intro]
-A & G
+F – C – Bb2 – C  (2x)
 
 [Verse 1]
-A                                                      C#m
-Ang kailangan ko ay ang pag-ibig Mo
-     Bm                                     Esus
-O Diyos sa buhay kong ito
-                                                        C#m
-Ang kagalakan Mo ay kalakasan ko
-  Bm                    Esus
-Ikaw ang nais ko
-           D                          C#m
-Ikaw lamang ang pupurihin
-          Bm                             Esus
-Ang pangalan Mo'y dadakilain
-      D                             C#m
-Wala na Sayo'y maihahambing
-                   Bm                          Esus
-Ang awit ko'y Iyong dinggin
+F                       C
+I  come before You today,
+Gm                              Dm7
+And there's just one thing that  I  want to say
+Bb         C      Bb         C
+Thank You Lord,  Thank  You Lord
+
+F                          C
+For all You've given to  me,
+Gm                             Dm7
+For all the blessings that   I   cannot see
+Bb         C      Bb         C
+Thank You Lord,  Thank  You Lord
+
+[Refrain]
+F                       C
+With a grateful heart,          with a song of praise
+Dm                      Bb
+With an outstretched arm,        I will bless Your name
 
 [Chorus]
-A                   C#m         Bm
-Langit ang aking nadarama
-      E7                         A
-Sa twing kapiling Ka
-              C#m                        Bm
-Ang puso ko'y sumisigla
-                  Esus
-Kapag Sayo'y sumasamba`
+F            C                  Bb           C
+Thank You Lord, I just want to  thank You Lord
+F            C          Bb
+Thank You Lord, I just want to  thank You
+C
+Lord,
+            F   C   Bb2  C        Bb2
+Thank You Lord
+
+[Verse 2]
+F                         C
+For all you've done in my  life,
+Gm                     Dm7
+You took my darkness and gave me Your light
+Bb         C      Bb         C
+Thank You Lord,  Thank  You Lord
+
+F                      C
+You took my sin and my shame
+Gm                     Dm7
+You took my sickness and heal all my pain
+Bb         C      Bb         C
+Thank You Lord,  Thank  You Lord
+
+(Refrain)
+(Chorus)
+
+[Instrumental] Verse Chords
+
+(Link)
+(Chorus 2x – Two Frets Higher) G – Cm9 – Dm9 – etc`
+    },
+    {
+      title: "Salamat Salamat",
+      youtubeUrl: "",
+      lyrics: `[Intro]
+F Am Gm C
+F Am Gm C
+
+[Verse 1]
+F               Am            Gm
+KUNG AKING MAMASDAN ANG KALAWAKAN
+           C
+HINDI KO MAUNAWAAN
+F              Am               Gm
+ ANG IYONG DAHILAN KUNG BAKIT AKO'Y
+             C
+PINILI MO'T INAALAGAAN
+
+[Pre-Chorus]
+Am             Dm
+ DI KO KAYANG ISIPIN
+           Am             Dm
+HINDING HINDI KO KAYANG SUKATIN
+Gm            Am
+ ANG PAG-IBIG MO HESUS
+   Bb             C
+NA'YONG BINIGAY SAKIN
+
+[Chorus]
+Bb
+ SALAMAT, SALAMAT
+    Am              Dm
+O HESUS SA PAG-IBIG MO
+Gm                 C              F          Gm   F
+ WALANG IBANG NAGMAHAL SAKIN NG KATULAD MO
+Bb
+ SALAMAT, SALAMAT
+    Am              Dm
+O HESUS SA PAG-IBIG MO
+Gm            C
+ AKO'Y MAGSASAYA SA PILING MO
+
+F Am Gm C
+
+[Verse 2]
+F                 Am          Gm
+KUNG MAY PAGSUBOK MAN O KAGIPITAN
+           C
+AKO AY MAY LALAPITAN
+F           Am             Gm
+ IKAW HESUS ANG AKING SANDIGAN
+              C
+HINDI MO KO PABABAYAAN
+
+[Pre-Chorus]
+Am             Dm
+ DI KO KAYANG ISIPIN
+           Am             Dm
+HINDING HINDI KO KAYANG SUKATIN
+Gm            Am
+ ANG PAG-IBIG MO HESUS
+   Bb             C
+NA'YONG BINIGAY SAKIN
+
+[Chorus]
+Bb
+ SALAMAT, SALAMAT
+    Am              Dm
+O HESUS SA PAG-IBIG MO
+Gm                 C              F          Gm   F
+ WALANG IBANG NAGMAHAL SAKIN NG KATULAD MO
+Bb
+ SALAMAT, SALAMAT
+    Am              Dm
+O HESUS SA PAG-IBIG MO
+Gm            C
+ AKO'Y MAGSASAYA SA PILING MO
+
+[Bridge]
+Bb            Am
+BUHAY KO NG PURIHIN KA
+Gm            C
+BUHAY KO NG SAYO'Y SUMAMBA
+  Bb              Am
+WALA NG IBANG NANAISIN PA
+        Gm        C
+KUNDI PASALAMATAN KA
+
+Bb            Am
+BUHAY KO NG PURIHIN KA
+Gm            C
+BUHAY KO NG SAYO'Y SUMAMBA
+  Bb              Am
+WALA NG IBANG NANAISIN PA
+        Gm        C
+KUNDI PASALAMATAN KA
+
+Bb            Am
+BUHAY KO NG PURIHIN KA
+Gm            C
+BUHAY KO NG SAYO'Y SUMAMBA
+  Bb              Am
+WALA NG IBANG NANAISIN PA
+        Gm        C
+KUNDI PASALAMATAN KA
+
+Gm   F
+
+[Chorus]
+Bb
+ SALAMAT, SALAMAT
+    Am              Dm
+O HESUS SA PAG-IBIG MO
+Gm                 C              F          Gm   F
+ WALANG IBANG NAGMAHAL SAKIN NG KATULAD MO
+Bb
+ SALAMAT, SALAMAT
+    Am              Dm
+O HESUS SA PAG-IBIG MO
+Gm            C
+ AKO'Y MAGSASAYA SA PILING MO
+
+Gm F
+
+Bb
+ SALAMAT, SALAMAT
+    Am              Dm
+O HESUS SA PAG-IBIG MO
+Gm                 C              F          Gm   F
+ WALANG IBANG NAGMAHAL SAKIN NG KATULAD MO
+Bb
+ SALAMAT, SALAMAT
+    Am              Dm
+O HESUS SA PAG-IBIG MO
+Gm            C
+ AKO'Y MAGSASAYA SA PILING MO
+
+F Am Gm C
+F Am Gm C`
     }
   ];
 
-  const currentSongs = mar4Songs;
+  const currentSongs = mar16Songs;
 
   // Calculate dynamic stats
   const availableLineups = 1;
   const accessibleLineups = 1;
-  const totalSongs = mar4Songs.length;
+  const totalSongs = mar16Songs.length;
 
   if (showSongs) {
     return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
