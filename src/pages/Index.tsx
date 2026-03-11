@@ -70,7 +70,7 @@ Thank You Lord,  Thank  You Lord
     },
     {
       title: "Salamat Salamat",
-      youtubeUrl: "",
+      youtubeUrl: "https://www.youtube.com/watch?v=O4ByQgAScSs",
       lyrics: `[Intro]
 F Am Gm C
 F Am Gm C
