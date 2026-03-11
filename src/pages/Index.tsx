@@ -246,10 +246,10 @@ F Am Gm C`
           <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
           
           <ServiceCard
-            date="Mar. 4"
-            title="Wednesday Praise and Worship"
+            date="Mar. 16"
+            title="Thanksgiving Praise and Worship"
             status="upcoming"
-            songCount={1}
+            songCount={2}
             onClick={() => {
               setShowSongs(true);
             }}
