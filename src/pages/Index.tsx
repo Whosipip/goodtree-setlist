@@ -10,7 +10,7 @@ const Index = () => {
   const mar16Songs = [
     {
       title: "Thank You, Lord",
-      youtubeUrl: "",
+      youtubeUrl: "https://www.youtube.com/watch?v=sax4aTgZ9dw",
       lyrics: `[Intro]
 F – C – Bb2 – C  (2x)
 
@@ -70,7 +70,7 @@ Thank You Lord,  Thank  You Lord
     },
     {
       title: "Salamat Salamat",
-      youtubeUrl: "",
+      youtubeUrl: "https://www.youtube.com/watch?v=O4ByQgAScSs",
       lyrics: `[Intro]
 F Am Gm C
 F Am Gm C
