@@ -12,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BottomNav } from "@/components/BottomNav";
 import { toast } from "@/hooks/use-toast";
-import { LogOut, Plus, Trash2, Music, Calendar as CalIcon } from "lucide-react";
+import { LogOut, Plus, Trash2, Music, Calendar as CalIcon, ArrowLeft } from "lucide-react";
 
 const WEDNESDAY_START = new Date(2026, 5, 24); // June 24, 2026
 
@@ -171,6 +171,15 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gradient-hero pb-24">
       <div className="px-4 pt-8 pb-6 max-w-2xl mx-auto">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => navigate("/")}
+          className="mb-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-1" />
+          Back to Main
+        </Button>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
