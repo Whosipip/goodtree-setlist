@@ -1,227 +1,66 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Music } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 import { StatsCard } from "@/components/StatsCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { HowToUse } from "@/components/HowToUse";
 import { SongView } from "@/components/SongView";
+import { BottomNav } from "@/components/BottomNav";
+
+interface SongRow {
+  title: string;
+  youtube_url: string | null;
+  lyrics: string | null;
+}
+
+interface ServiceLineup {
+  id: string;
+  service_date: string;
+  songs: SongRow[];
+}
 
 const Index = () => {
-  const [showSongs, setShowSongs] = useState(false);
-  const mar16Songs = [
-    {
-      title: "Thank You, Lord",
-      youtubeUrl: "https://www.youtube.com/watch?v=sax4aTgZ9dw",
-      lyrics: `[Intro]
-F – C – Bb2 – C  (2x)
+  const [lineups, setLineups] = useState<ServiceLineup[]>([]);
+  const [activeLineup, setActiveLineup] = useState<ServiceLineup | null>(null);
 
-[Verse 1]
-F                       C
-I  come before You today,
-Gm                              Dm7
-And there's just one thing that  I  want to say
-Bb         C      Bb         C
-Thank You Lord,  Thank  You Lord
+  useEffect(() => {
+    document.title = "Good Tree Music Team — Chords & Lyrics";
+    loadLineups();
+  }, []);
 
-F                          C
-For all You've given to  me,
-Gm                             Dm7
-For all the blessings that   I   cannot see
-Bb         C      Bb         C
-Thank You Lord,  Thank  You Lord
+  const loadLineups = async () => {
+    const today = format(new Date(), "yyyy-MM-dd");
+    const { data: services } = await supabase
+      .from("services")
+      .select("id,service_date,setlists(position,song_time,songs(title,youtube_url,lyrics))")
+      .gte("service_date", today)
+      .order("service_date");
 
-[Refrain]
-F                       C
-With a grateful heart,          with a song of praise
-Dm                      Bb
-With an outstretched arm,        I will bless Your name
+    const mapped: ServiceLineup[] = (services || []).map((s: any) => ({
+      id: s.id,
+      service_date: s.service_date,
+      songs: (s.setlists || [])
+        .sort((a: any, b: any) => a.position - b.position)
+        .map((sl: any) => sl.songs)
+        .filter(Boolean),
+    }));
+    setLineups(mapped);
+  };
 
-[Chorus]
-F            C                  Bb           C
-Thank You Lord, I just want to  thank You Lord
-F            C          Bb
-Thank You Lord, I just want to  thank You
-C
-Lord,
-            F   C   Bb2  C        Bb2
-Thank You Lord
+  const totalSongs = lineups.reduce((sum, l) => sum + l.songs.length, 0);
 
-[Verse 2]
-F                         C
-For all you've done in my  life,
-Gm                     Dm7
-You took my darkness and gave me Your light
-Bb         C      Bb         C
-Thank You Lord,  Thank  You Lord
-
-F                      C
-You took my sin and my shame
-Gm                     Dm7
-You took my sickness and heal all my pain
-Bb         C      Bb         C
-Thank You Lord,  Thank  You Lord
-
-(Refrain)
-(Chorus)
-
-[Instrumental] Verse Chords
-
-(Link)
-(Chorus 2x – Two Frets Higher) G – Cm9 – Dm9 – etc`
-    },
-    {
-      title: "Salamat Salamat",
-      youtubeUrl: "https://www.youtube.com/watch?v=O4ByQgAScSs",
-      lyrics: `[Intro]
-F Am Gm C
-F Am Gm C
-
-[Verse 1]
-F               Am            Gm
-KUNG AKING MAMASDAN ANG KALAWAKAN
-           C
-HINDI KO MAUNAWAAN
-F              Am               Gm
- ANG IYONG DAHILAN KUNG BAKIT AKO'Y
-             C
-PINILI MO'T INAALAGAAN
-
-[Pre-Chorus]
-Am             Dm
- DI KO KAYANG ISIPIN
-           Am             Dm
-HINDING HINDI KO KAYANG SUKATIN
-Gm            Am
- ANG PAG-IBIG MO HESUS
-   Bb             C
-NA'YONG BINIGAY SAKIN
-
-[Chorus]
-Bb
- SALAMAT, SALAMAT
-    Am              Dm
-O HESUS SA PAG-IBIG MO
-Gm                 C              F          Gm   F
- WALANG IBANG NAGMAHAL SAKIN NG KATULAD MO
-Bb
- SALAMAT, SALAMAT
-    Am              Dm
-O HESUS SA PAG-IBIG MO
-Gm            C
- AKO'Y MAGSASAYA SA PILING MO
-
-F Am Gm C
-
-[Verse 2]
-F                 Am          Gm
-KUNG MAY PAGSUBOK MAN O KAGIPITAN
-           C
-AKO AY MAY LALAPITAN
-F           Am             Gm
- IKAW HESUS ANG AKING SANDIGAN
-              C
-HINDI MO KO PABABAYAAN
-
-[Pre-Chorus]
-Am             Dm
- DI KO KAYANG ISIPIN
-           Am             Dm
-HINDING HINDI KO KAYANG SUKATIN
-Gm            Am
- ANG PAG-IBIG MO HESUS
-   Bb             C
-NA'YONG BINIGAY SAKIN
-
-[Chorus]
-Bb
- SALAMAT, SALAMAT
-    Am              Dm
-O HESUS SA PAG-IBIG MO
-Gm                 C              F          Gm   F
- WALANG IBANG NAGMAHAL SAKIN NG KATULAD MO
-Bb
- SALAMAT, SALAMAT
-    Am              Dm
-O HESUS SA PAG-IBIG MO
-Gm            C
- AKO'Y MAGSASAYA SA PILING MO
-
-[Bridge]
-Bb            Am
-BUHAY KO NG PURIHIN KA
-Gm            C
-BUHAY KO NG SAYO'Y SUMAMBA
-  Bb              Am
-WALA NG IBANG NANAISIN PA
-        Gm        C
-KUNDI PASALAMATAN KA
-
-Bb            Am
-BUHAY KO NG PURIHIN KA
-Gm            C
-BUHAY KO NG SAYO'Y SUMAMBA
-  Bb              Am
-WALA NG IBANG NANAISIN PA
-        Gm        C
-KUNDI PASALAMATAN KA
-
-Bb            Am
-BUHAY KO NG PURIHIN KA
-Gm            C
-BUHAY KO NG SAYO'Y SUMAMBA
-  Bb              Am
-WALA NG IBANG NANAISIN PA
-        Gm        C
-KUNDI PASALAMATAN KA
-
-Gm   F
-
-[Chorus]
-Bb
- SALAMAT, SALAMAT
-    Am              Dm
-O HESUS SA PAG-IBIG MO
-Gm                 C              F          Gm   F
- WALANG IBANG NAGMAHAL SAKIN NG KATULAD MO
-Bb
- SALAMAT, SALAMAT
-    Am              Dm
-O HESUS SA PAG-IBIG MO
-Gm            C
- AKO'Y MAGSASAYA SA PILING MO
-
-Gm F
-
-Bb
- SALAMAT, SALAMAT
-    Am              Dm
-O HESUS SA PAG-IBIG MO
-Gm                 C              F          Gm   F
- WALANG IBANG NAGMAHAL SAKIN NG KATULAD MO
-Bb
- SALAMAT, SALAMAT
-    Am              Dm
-O HESUS SA PAG-IBIG MO
-Gm            C
- AKO'Y MAGSASAYA SA PILING MO
-
-F Am Gm C
-F Am Gm C`
-    }
-  ];
-
-  const currentSongs = mar16Songs;
-
-  // Calculate dynamic stats
-  const availableLineups = 1;
-  const accessibleLineups = 1;
-  const totalSongs = mar16Songs.length;
-
-  if (showSongs) {
-    return <SongView songs={currentSongs} onClose={() => setShowSongs(false)} />;
+  if (activeLineup) {
+    const songs = activeLineup.songs.map((s) => ({
+      title: s.title,
+      lyrics: s.lyrics || "",
+      youtubeUrl: s.youtube_url || "",
+    }));
+    return <SongView songs={songs} onClose={() => setActiveLineup(null)} />;
   }
+
   return (
-    <div className="min-h-screen bg-gradient-hero">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-hero pb-24">
       <div className="text-center pt-8 pb-6">
         <div className="flex justify-center mb-4">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
@@ -234,28 +73,36 @@ F Am Gm C`
 
       <div className="px-4 mb-8">
         <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
-          <StatsCard number={availableLineups.toString()} label="Upcoming" />
-          <StatsCard number={accessibleLineups.toString()} label="With Songs" />
+          <StatsCard number={lineups.length.toString()} label="Upcoming" />
+          <StatsCard number={lineups.filter((l) => l.songs.length > 0).length.toString()} label="With Songs" />
           <StatsCard number={totalSongs.toString()} label="Total Songs" />
         </div>
       </div>
 
-      {/* Available Lineups Section */}
       <div className="px-4 pb-8">
         <div className="max-w-md mx-auto space-y-6">
-          <ServiceCard
-            date="Mar. 19"
-            title="Thanksgiving Praise and Worship"
-            status="upcoming"
-            songCount={2}
-            onClick={() => {
-              setShowSongs(true);
-            }}
-          />
-
+          {lineups.length === 0 ? (
+            <p className="text-center text-white/80">No upcoming services scheduled yet.</p>
+          ) : (
+            lineups.map((lineup) => {
+              const date = parseISO(lineup.service_date);
+              return (
+                <ServiceCard
+                  key={lineup.id}
+                  date={format(date, "MMM d, yyyy")}
+                  title={`${format(date, "EEEE")} Praise & Worship`}
+                  status="upcoming"
+                  songCount={lineup.songs.length}
+                  locked={lineup.songs.length === 0}
+                  onClick={() => lineup.songs.length > 0 && setActiveLineup(lineup)}
+                />
+              );
+            })
+          )}
           <HowToUse />
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 };
