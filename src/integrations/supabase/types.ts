@@ -55,6 +55,7 @@ export type Database = {
           position: number
           service_id: string
           song_id: string
+          song_time: string | null
         }
         Insert: {
           created_at?: string | null
@@ -63,6 +64,7 @@ export type Database = {
           position: number
           service_id: string
           song_id: string
+          song_time?: string | null
         }
         Update: {
           created_at?: string | null
@@ -71,6 +73,7 @@ export type Database = {
           position?: number
           service_id?: string
           song_id?: string
+          song_time?: string | null
         }
         Relationships: [
           {
