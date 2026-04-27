@@ -243,8 +243,6 @@ F Am Gm C`
       {/* Available Lineups Section */}
       <div className="px-4 pb-8">
         <div className="max-w-md mx-auto space-y-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Available Lineups</h2>
-          
           <ServiceCard
             date="Mar. 19"
             title="Thanksgiving Praise and Worship"
