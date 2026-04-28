@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, ChevronLeft, ChevronRight, Plus, Minus, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,11 +14,26 @@ interface SongViewProps {
   onClose: () => void;
 }
 
+const transposeKey = (title: string) => `transpose:${title.trim().toLowerCase()}`;
+
 export const SongView = ({ songs, onClose }: SongViewProps) => {
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [transpose, setTranspose] = useState(0);
+  const [transpose, setTransposeState] = useState(0);
 
   const currentSong = songs[currentSongIndex];
+
+  useEffect(() => {
+    if (!currentSong) return;
+    const saved = localStorage.getItem(transposeKey(currentSong.title));
+    setTransposeState(saved ? parseInt(saved, 10) || 0 : 0);
+  }, [currentSongIndex, currentSong?.title]);
+
+  const setTranspose = (val: number) => {
+    setTransposeState(val);
+    if (currentSong) {
+      localStorage.setItem(transposeKey(currentSong.title), String(val));
+    }
+  };
 
   const chordMap: { [key: string]: string[] } = {
     'C': ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
@@ -54,12 +69,10 @@ export const SongView = ({ songs, onClose }: SongViewProps) => {
 
   const nextSong = () => {
     setCurrentSongIndex((prev) => (prev + 1) % songs.length);
-    setTranspose(0);
   };
 
   const prevSong = () => {
     setCurrentSongIndex((prev) => (prev - 1 + songs.length) % songs.length);
-    setTranspose(0);
   };
 
   return (
