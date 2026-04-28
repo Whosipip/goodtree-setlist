@@ -341,6 +341,13 @@ const Admin = () => {
             )}
           </Card>
         )}
+
+        {selectedDate && serviceId && (
+          <div className="mb-4">
+            <h2 className="font-semibold text-white mb-2 px-1">Team Roster</h2>
+            <TeamRoster serviceId={serviceId} editable={true} />
+          </div>
+        )}
       </div>
       <BottomNav />
     </div>
