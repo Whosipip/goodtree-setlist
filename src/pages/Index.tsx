@@ -45,7 +45,8 @@ const Index = () => {
         .map((sl: any) => sl.songs)
         .filter(Boolean),
     }));
-    setLineups(mapped);
+    // Hide services that have no songs yet (lineup not ready)
+    setLineups(mapped.filter((l) => l.songs.length > 0));
   };
 
   const totalSongs = lineups.reduce((sum, l) => sum + l.songs.length, 0);
