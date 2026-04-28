@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BottomNav } from "@/components/BottomNav";
+import { TeamRoster } from "@/components/TeamRoster";
 import { toast } from "@/hooks/use-toast";
 import { LogOut, Plus, Trash2, Music, Calendar as CalIcon, ArrowLeft } from "lucide-react";
 
