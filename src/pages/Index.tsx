@@ -85,7 +85,7 @@ const Index = () => {
                   status="upcoming"
                   songCount={lineup.songs.length}
                   locked={lineup.songs.length === 0}
-                  onClick={() => lineup.songs.length > 0 && setActiveLineup(lineup)}
+                  onClick={() => navigate(`/service/${lineup.id}`)}
                 />
               );
             })
