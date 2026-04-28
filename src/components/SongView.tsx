@@ -69,12 +69,10 @@ export const SongView = ({ songs, onClose }: SongViewProps) => {
 
   const nextSong = () => {
     setCurrentSongIndex((prev) => (prev + 1) % songs.length);
-    setTranspose(0);
   };
 
   const prevSong = () => {
     setCurrentSongIndex((prev) => (prev - 1 + songs.length) % songs.length);
-    setTranspose(0);
   };
 
   return (
