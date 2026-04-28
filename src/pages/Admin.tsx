@@ -58,7 +58,14 @@ const Admin = () => {
 
   const loadAllSongs = async () => {
     const { data } = await supabase.from("songs").select("id,title,youtube_url,lyrics").order("title");
-    setAllSongs((data as Song[]) || []);
+    const seen = new Set<string>();
+    const unique = ((data as Song[]) || []).filter((s) => {
+      const key = s.title.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    setAllSongs(unique);
   };
 
   const loadServiceForDate = async (date: Date) => {
