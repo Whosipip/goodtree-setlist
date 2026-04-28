@@ -84,7 +84,7 @@ const Index = () => {
                   title={`${format(date, "EEEE")} Praise & Worship`}
                   status="upcoming"
                   songCount={lineup.songs.length}
-                  locked={lineup.songs.length === 0}
+                  locked={false}
                   onClick={() => navigate(`/service/${lineup.id}`)}
                 />
               );
