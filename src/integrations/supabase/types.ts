@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      roster_people: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           created_at: string | null
@@ -199,6 +217,30 @@ export type Database = {
           position?: number
           role?: string
           service_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      team_presets: {
+        Row: {
+          created_at: string | null
+          data: Json
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json
+          id?: string
+          name?: string
           updated_at?: string | null
         }
         Relationships: []
