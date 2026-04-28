@@ -170,6 +170,39 @@ export type Database = {
         }
         Relationships: []
       }
+      team_members: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          name: string
+          position: number
+          role: string
+          service_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          position?: number
+          role: string
+          service_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          position?: number
+          role?: string
+          service_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null

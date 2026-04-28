@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Music } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { StatsCard } from "@/components/StatsCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { HowToUse } from "@/components/HowToUse";
-import { SongView } from "@/components/SongView";
 import { BottomNav } from "@/components/BottomNav";
 
 interface SongRow {
@@ -22,7 +22,7 @@ interface ServiceLineup {
 
 const Index = () => {
   const [lineups, setLineups] = useState<ServiceLineup[]>([]);
-  const [activeLineup, setActiveLineup] = useState<ServiceLineup | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Good Tree Music Team — Chords & Lyrics";
@@ -49,15 +49,6 @@ const Index = () => {
   };
 
   const totalSongs = lineups.reduce((sum, l) => sum + l.songs.length, 0);
-
-  if (activeLineup) {
-    const songs = activeLineup.songs.map((s) => ({
-      title: s.title,
-      lyrics: s.lyrics || "",
-      youtubeUrl: s.youtube_url || "",
-    }));
-    return <SongView songs={songs} onClose={() => setActiveLineup(null)} />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-hero pb-24">
@@ -93,8 +84,8 @@ const Index = () => {
                   title={`${format(date, "EEEE")} Praise & Worship`}
                   status="upcoming"
                   songCount={lineup.songs.length}
-                  locked={lineup.songs.length === 0}
-                  onClick={() => lineup.songs.length > 0 && setActiveLineup(lineup)}
+                  locked={false}
+                  onClick={() => navigate(`/service/${lineup.id}`)}
                 />
               );
             })

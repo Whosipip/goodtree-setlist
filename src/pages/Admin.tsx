@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BottomNav } from "@/components/BottomNav";
+import { TeamRoster } from "@/components/TeamRoster";
 import { toast } from "@/hooks/use-toast";
 import { LogOut, Plus, Trash2, Music, Calendar as CalIcon, ArrowLeft } from "lucide-react";
 
@@ -58,7 +59,14 @@ const Admin = () => {
 
   const loadAllSongs = async () => {
     const { data } = await supabase.from("songs").select("id,title,youtube_url,lyrics").order("title");
-    setAllSongs((data as Song[]) || []);
+    const seen = new Set<string>();
+    const unique = ((data as Song[]) || []).filter((s) => {
+      const key = s.title.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    setAllSongs(unique);
   };
 
   const loadServiceForDate = async (date: Date) => {
@@ -103,6 +111,18 @@ const Admin = () => {
   const handleCreateSong = async () => {
     if (!newSong.title.trim()) {
       toast({ title: "Title required", variant: "destructive" });
+      return;
+    }
+    const titleNorm = newSong.title.trim().toLowerCase();
+    const existing = allSongs.find((s) => s.title.trim().toLowerCase() === titleNorm);
+    if (existing) {
+      const useExisting = window.confirm(
+        `"${existing.title}" is already in the library.\n\nClick OK to add the existing song to this lineup instead, or Cancel to edit the title.`
+      );
+      if (!useExisting) return;
+      await handleAddExisting(existing.id);
+      setNewSong({ title: "", youtube_url: "", lyrics: "" });
+      setShowAddSong(false);
       return;
     }
     const sid = await ensureService();
@@ -320,6 +340,13 @@ const Admin = () => {
               </div>
             )}
           </Card>
+        )}
+
+        {selectedDate && serviceId && (
+          <div className="mb-4">
+            <h2 className="font-semibold text-white mb-2 px-1">Team Roster</h2>
+            <TeamRoster serviceId={serviceId} editable={true} />
+          </div>
         )}
       </div>
       <BottomNav />
