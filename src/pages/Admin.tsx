@@ -105,6 +105,18 @@ const Admin = () => {
       toast({ title: "Title required", variant: "destructive" });
       return;
     }
+    const titleNorm = newSong.title.trim().toLowerCase();
+    const existing = allSongs.find((s) => s.title.trim().toLowerCase() === titleNorm);
+    if (existing) {
+      const useExisting = window.confirm(
+        `"${existing.title}" is already in the library.\n\nClick OK to add the existing song to this lineup instead, or Cancel to edit the title.`
+      );
+      if (!useExisting) return;
+      await handleAddExisting(existing.id);
+      setNewSong({ title: "", youtube_url: "", lyrics: "" });
+      setShowAddSong(false);
+      return;
+    }
     const sid = await ensureService();
     if (!sid) return;
     const { data: song, error } = await supabase
