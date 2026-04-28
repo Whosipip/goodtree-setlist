@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Music } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { StatsCard } from "@/components/StatsCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { HowToUse } from "@/components/HowToUse";
-import { SongView } from "@/components/SongView";
 import { BottomNav } from "@/components/BottomNav";
 
 interface SongRow {
