@@ -113,7 +113,47 @@ const Admin = () => {
     return data.id;
   };
 
-  const handleCreateSong = async () => {
+  const saveServiceNotes = async (notes: string) => {
+    if (!serviceId) return;
+    await supabase.from("services").update({ notes }).eq("id", serviceId);
+  };
+
+  const createOtherEvent = async () => {
+    if (!otherDate) {
+      toast({ title: "Pick a date", variant: "destructive" });
+      return;
+    }
+    if (!otherName.trim()) {
+      toast({ title: "Service name required", variant: "destructive" });
+      return;
+    }
+    // Check if a service already exists for that date
+    const { data: existing } = await supabase
+      .from("services")
+      .select("id")
+      .eq("service_date", otherDate)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from("services").update({ notes: otherName.trim() }).eq("id", existing.id);
+    } else {
+      const { error } = await supabase.from("services").insert({
+        service_date: otherDate,
+        status: "planning",
+        created_by: user?.id,
+        notes: otherName.trim(),
+      });
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        return;
+      }
+    }
+    toast({ title: `Event saved: ${otherName.trim()}` });
+    const d = parseISO(otherDate);
+    setSelectedDate(d);
+    setOtherDate("");
+    setOtherName("");
+  };
     if (!newSong.title.trim()) {
       toast({ title: "Title required", variant: "destructive" });
       return;
