@@ -37,12 +37,15 @@ const Admin = () => {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(WEDNESDAY_START);
   const [serviceId, setServiceId] = useState<string | null>(null);
+  const [serviceNotes, setServiceNotes] = useState<string>("");
   const [setlist, setSetlist] = useState<SetlistEntry[]>([]);
   const [allSongs, setAllSongs] = useState<Song[]>([]);
   const [showAddSong, setShowAddSong] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
   const [songTime, setSongTime] = useState("");
   const [newSong, setNewSong] = useState({ title: "", youtube_url: "", lyrics: "" });
+  const [otherDate, setOtherDate] = useState<string>("");
+  const [otherName, setOtherName] = useState<string>("");
 
   useEffect(() => {
     document.title = "Admin Dashboard | Good Tree Music";
@@ -73,16 +76,18 @@ const Admin = () => {
     const dateStr = format(date, "yyyy-MM-dd");
     const { data: service } = await supabase
       .from("services")
-      .select("id")
+      .select("id,notes")
       .eq("service_date", dateStr)
       .maybeSingle();
 
     if (!service) {
       setServiceId(null);
+      setServiceNotes("");
       setSetlist([]);
       return;
     }
     setServiceId(service.id);
+    setServiceNotes(service.notes || "");
     const { data: items } = await supabase
       .from("setlists")
       .select("id,song_id,position,song_time,songs(id,title,youtube_url,lyrics)")
