@@ -25,6 +25,7 @@ const SLOTS: Slot[] = [
   { role: "Pianist", count: 1 },
   { role: "Drummer", count: 1 },
   { role: "Media", count: 1 },
+  { role: "Tambourine", count: 1 },
 ];
 
 const ALL_ROLES = SLOTS.map((s) => s.role);

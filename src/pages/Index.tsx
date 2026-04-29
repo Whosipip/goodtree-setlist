@@ -17,6 +17,7 @@ interface SongRow {
 interface ServiceLineup {
   id: string;
   service_date: string;
+  notes: string | null;
   songs: SongRow[];
 }
 
@@ -33,13 +34,14 @@ const Index = () => {
     const today = format(new Date(), "yyyy-MM-dd");
     const { data: services } = await supabase
       .from("services")
-      .select("id,service_date,setlists(position,song_time,songs(title,youtube_url,lyrics))")
+      .select("id,service_date,notes,setlists(position,song_time,songs(title,youtube_url,lyrics))")
       .gte("service_date", today)
       .order("service_date");
 
     const mapped: ServiceLineup[] = (services || []).map((s: any) => ({
       id: s.id,
       service_date: s.service_date,
+      notes: s.notes ?? null,
       songs: (s.setlists || [])
         .sort((a: any, b: any) => a.position - b.position)
         .map((sl: any) => sl.songs)
@@ -82,7 +84,7 @@ const Index = () => {
                 <ServiceCard
                   key={lineup.id}
                   date={format(date, "MMM d, yyyy")}
-                  title={`${format(date, "EEEE")} Praise & Worship`}
+                  title={lineup.notes?.trim() || `${format(date, "EEEE")} Praise & Worship`}
                   status="upcoming"
                   songCount={lineup.songs.length}
                   locked={false}

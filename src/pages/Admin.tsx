@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { format, addDays, isWednesday, startOfDay } from "date-fns";
+import { format, addDays, isWednesday, startOfDay, parseISO } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -37,12 +37,15 @@ const Admin = () => {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(WEDNESDAY_START);
   const [serviceId, setServiceId] = useState<string | null>(null);
+  const [serviceNotes, setServiceNotes] = useState<string>("");
   const [setlist, setSetlist] = useState<SetlistEntry[]>([]);
   const [allSongs, setAllSongs] = useState<Song[]>([]);
   const [showAddSong, setShowAddSong] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
   const [songTime, setSongTime] = useState("");
   const [newSong, setNewSong] = useState({ title: "", youtube_url: "", lyrics: "" });
+  const [otherDate, setOtherDate] = useState<string>("");
+  const [otherName, setOtherName] = useState<string>("");
 
   useEffect(() => {
     document.title = "Admin Dashboard | Good Tree Music";
@@ -73,16 +76,18 @@ const Admin = () => {
     const dateStr = format(date, "yyyy-MM-dd");
     const { data: service } = await supabase
       .from("services")
-      .select("id")
+      .select("id,notes")
       .eq("service_date", dateStr)
       .maybeSingle();
 
     if (!service) {
       setServiceId(null);
+      setServiceNotes("");
       setSetlist([]);
       return;
     }
     setServiceId(service.id);
+    setServiceNotes(service.notes || "");
     const { data: items } = await supabase
       .from("setlists")
       .select("id,song_id,position,song_time,songs(id,title,youtube_url,lyrics)")
@@ -106,6 +111,48 @@ const Admin = () => {
     }
     setServiceId(data.id);
     return data.id;
+  };
+
+  const saveServiceNotes = async (notes: string) => {
+    if (!serviceId) return;
+    await supabase.from("services").update({ notes }).eq("id", serviceId);
+  };
+
+  const createOtherEvent = async () => {
+    if (!otherDate) {
+      toast({ title: "Pick a date", variant: "destructive" });
+      return;
+    }
+    if (!otherName.trim()) {
+      toast({ title: "Service name required", variant: "destructive" });
+      return;
+    }
+    // Check if a service already exists for that date
+    const { data: existing } = await supabase
+      .from("services")
+      .select("id")
+      .eq("service_date", otherDate)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from("services").update({ notes: otherName.trim() }).eq("id", existing.id);
+    } else {
+      const { error } = await supabase.from("services").insert({
+        service_date: otherDate,
+        status: "planning",
+        created_by: user?.id,
+        notes: otherName.trim(),
+      });
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        return;
+      }
+    }
+    toast({ title: `Event saved: ${otherName.trim()}` });
+    const d = parseISO(otherDate);
+    setSelectedDate(d);
+    setOtherDate("");
+    setOtherName("");
   };
 
   const handleCreateSong = async () => {
@@ -190,7 +237,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero pb-24">
-      <div className="px-4 pt-8 pb-6 max-w-2xl mx-auto">
+      <div className="px-4 pt-8 pb-6 max-w-4xl mx-auto">
         <Button
           variant="secondary"
           size="sm"
@@ -214,28 +261,87 @@ const Admin = () => {
           </Button>
         </div>
 
-        <Card className="p-4 mb-4 bg-white/95">
-          <div className="flex items-center mb-3">
-            <CalIcon className="w-5 h-5 mr-2 text-primary" />
-            <h2 className="font-semibold">Pick a Wednesday Service</h2>
-          </div>
-          <p className="text-xs text-muted-foreground mb-3">
-            Wednesdays only, starting June 24, 2026.
-          </p>
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            disabled={(date) => !isWednesdayOrAfter(date)}
-            defaultMonth={WEDNESDAY_START}
-            className="p-3 pointer-events-auto rounded-md border"
-          />
-          {selectedDate && (
-            <div className="mt-3 p-3 bg-primary/10 rounded text-sm font-medium text-center">
-              {format(selectedDate, "EEEE, MMMM d, yyyy")}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <Card className="p-4 bg-white/95">
+            <div className="flex items-center mb-3">
+              <CalIcon className="w-5 h-5 mr-2 text-primary" />
+              <h2 className="font-semibold">Pick a Wednesday Service</h2>
             </div>
-          )}
-        </Card>
+            <p className="text-xs text-muted-foreground mb-3">
+              Wednesdays only, starting June 24, 2026.
+            </p>
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              disabled={(date) => !isWednesdayOrAfter(date)}
+              defaultMonth={WEDNESDAY_START}
+              className="p-3 pointer-events-auto rounded-md border"
+            />
+            {selectedDate && (
+              <div className="mt-3 p-3 bg-primary/10 rounded text-sm font-medium text-center">
+                {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                {serviceNotes && (
+                  <div className="text-xs text-primary mt-1">📌 {serviceNotes}</div>
+                )}
+              </div>
+            )}
+          </Card>
+
+          <Card className="p-4 bg-white/95">
+            <div className="flex items-center mb-3">
+              <Plus className="w-5 h-5 mr-2 text-primary" />
+              <h2 className="font-semibold">Other Event</h2>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Add a service for any other day (e.g. Friday Youth Night).
+            </p>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-xs">Date</Label>
+                <Input
+                  type="date"
+                  value={otherDate}
+                  onChange={(e) => setOtherDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Service name</Label>
+                <Input
+                  placeholder="e.g. Friday Youth Praise"
+                  value={otherName}
+                  onChange={(e) => setOtherName(e.target.value)}
+                />
+              </div>
+              <Button onClick={createOtherEvent} className="w-full" size="sm">
+                Save Event
+              </Button>
+
+              {selectedDate && serviceId && (
+                <div className="pt-3 border-t">
+                  <Label className="text-xs">Rename current service</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      placeholder="Leave empty for default title"
+                      value={serviceNotes}
+                      onChange={(e) => setServiceNotes(e.target.value)}
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        await saveServiceNotes(serviceNotes);
+                        toast({ title: "Service updated" });
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
 
         {selectedDate && (
           <Card className="p-4 mb-4 bg-white/95">
