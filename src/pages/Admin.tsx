@@ -261,28 +261,87 @@ const Admin = () => {
           </Button>
         </div>
 
-        <Card className="p-4 mb-4 bg-white/95">
-          <div className="flex items-center mb-3">
-            <CalIcon className="w-5 h-5 mr-2 text-primary" />
-            <h2 className="font-semibold">Pick a Wednesday Service</h2>
-          </div>
-          <p className="text-xs text-muted-foreground mb-3">
-            Wednesdays only, starting June 24, 2026.
-          </p>
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            disabled={(date) => !isWednesdayOrAfter(date)}
-            defaultMonth={WEDNESDAY_START}
-            className="p-3 pointer-events-auto rounded-md border"
-          />
-          {selectedDate && (
-            <div className="mt-3 p-3 bg-primary/10 rounded text-sm font-medium text-center">
-              {format(selectedDate, "EEEE, MMMM d, yyyy")}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <Card className="p-4 bg-white/95">
+            <div className="flex items-center mb-3">
+              <CalIcon className="w-5 h-5 mr-2 text-primary" />
+              <h2 className="font-semibold">Pick a Wednesday Service</h2>
             </div>
-          )}
-        </Card>
+            <p className="text-xs text-muted-foreground mb-3">
+              Wednesdays only, starting June 24, 2026.
+            </p>
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              disabled={(date) => !isWednesdayOrAfter(date)}
+              defaultMonth={WEDNESDAY_START}
+              className="p-3 pointer-events-auto rounded-md border"
+            />
+            {selectedDate && (
+              <div className="mt-3 p-3 bg-primary/10 rounded text-sm font-medium text-center">
+                {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                {serviceNotes && (
+                  <div className="text-xs text-primary mt-1">📌 {serviceNotes}</div>
+                )}
+              </div>
+            )}
+          </Card>
+
+          <Card className="p-4 bg-white/95">
+            <div className="flex items-center mb-3">
+              <Plus className="w-5 h-5 mr-2 text-primary" />
+              <h2 className="font-semibold">Other Event</h2>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Add a service for any other day (e.g. Friday Youth Night).
+            </p>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-xs">Date</Label>
+                <Input
+                  type="date"
+                  value={otherDate}
+                  onChange={(e) => setOtherDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Service name</Label>
+                <Input
+                  placeholder="e.g. Friday Youth Praise"
+                  value={otherName}
+                  onChange={(e) => setOtherName(e.target.value)}
+                />
+              </div>
+              <Button onClick={createOtherEvent} className="w-full" size="sm">
+                Save Event
+              </Button>
+
+              {selectedDate && serviceId && (
+                <div className="pt-3 border-t">
+                  <Label className="text-xs">Rename current service</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      placeholder="Leave empty for default title"
+                      value={serviceNotes}
+                      onChange={(e) => setServiceNotes(e.target.value)}
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        await saveServiceNotes(serviceNotes);
+                        toast({ title: "Service updated" });
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
 
         {selectedDate && (
           <Card className="p-4 mb-4 bg-white/95">
