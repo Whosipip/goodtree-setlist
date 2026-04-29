@@ -4,6 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, X } from "lucide-react";
 
@@ -21,8 +24,10 @@ const SLOTS: Slot[] = [
   { role: "Bassist", count: 1 },
   { role: "Pianist", count: 1 },
   { role: "Drummer", count: 1 },
+  { role: "Media", count: 1 },
 ];
 
+const ALL_ROLES = SLOTS.map((s) => s.role);
 const CATEGORIES: Category[] = ["Highschool", "Elementary"];
 
 interface Member {
@@ -37,6 +42,8 @@ interface Member {
 interface Person {
   id: string;
   name: string;
+  category: Category | null;
+  roles: string[];
 }
 
 interface Preset {
@@ -56,8 +63,14 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [presets, setPresets] = useState<Preset[]>([]);
-  const [newPerson, setNewPerson] = useState("");
   const [newPresetName, setNewPresetName] = useState("");
+
+  // Add-member dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [step, setStep] = useState<"name" | "category" | "roles">("name");
+  const [draftName, setDraftName] = useState("");
+  const [draftCategory, setDraftCategory] = useState<Category | null>(null);
+  const [draftRoles, setDraftRoles] = useState<string[]>([]);
 
   useEffect(() => {
     load();
@@ -66,10 +79,7 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   }, [serviceId]);
 
   const load = async () => {
-    const { data } = await supabase
-      .from("team_members")
-      .select("*")
-      .eq("service_id", serviceId);
+    const { data } = await supabase.from("team_members").select("*").eq("service_id", serviceId);
     setMembers((data as any) || []);
   };
 
@@ -100,6 +110,12 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     });
   };
 
+  // People eligible for a given category + role slot
+  const eligiblePeople = (cat: Category, role: string) =>
+    people.filter(
+      (p) => (!p.category || p.category === cat) && (p.roles?.length ? p.roles.includes(role) : true)
+    );
+
   const save = async () => {
     for (const m of members) {
       if (!m.name.trim()) {
@@ -129,21 +145,40 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     toast({ title: "Team cleared" });
   };
 
-  const addPerson = async () => {
-    const n = newPerson.trim();
-    if (!n) return;
-    const { error } = await supabase.from("roster_people").insert({ name: n });
+  const resetDialog = () => {
+    setDraftName("");
+    setDraftCategory(null);
+    setDraftRoles([]);
+    setStep("name");
+  };
+
+  const submitNewMember = async () => {
+    const n = draftName.trim();
+    if (!n || !draftCategory || draftRoles.length === 0) return;
+    const { error } = await supabase.from("roster_people").insert({
+      name: n,
+      category: draftCategory,
+      roles: draftRoles,
+    });
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       return;
     }
-    setNewPerson("");
+    setDialogOpen(false);
+    resetDialog();
     await loadPeople();
+    toast({ title: "Member added" });
   };
 
   const deletePerson = async (id: string) => {
     await supabase.from("roster_people").delete().eq("id", id);
     await loadPeople();
+  };
+
+  const toggleDraftRole = (role: string) => {
+    setDraftRoles((prev) =>
+      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+    );
   };
 
   const savePreset = async () => {
@@ -202,6 +237,7 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                   {Array.from({ length: slot.count }).map((_, i) => {
                     const pos = i + 1;
                     const name = getName(cat, slot.role, pos);
+                    const options = eligiblePeople(cat, slot.role);
                     return editable ? (
                       <Select
                         key={pos}
@@ -213,12 +249,12 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value={NONE_VALUE}>— None —</SelectItem>
-                          {people.map((p) => (
+                          {options.map((p) => (
                             <SelectItem key={p.id} value={p.name}>
                               {p.name}
                             </SelectItem>
                           ))}
-                          {name && !people.some((p) => p.name === name) && (
+                          {name && !options.some((p) => p.name === name) && (
                             <SelectItem value={name}>{name}</SelectItem>
                           )}
                         </SelectContent>
@@ -247,32 +283,37 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
           {/* Member directory */}
           <Card className="p-4 bg-white/95">
-            <h3 className="font-bold mb-3">Members</h3>
-            <div className="flex gap-2 mb-3">
-              <Input
-                placeholder="New member name"
-                value={newPerson}
-                onChange={(e) => setNewPerson(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addPerson()}
-              />
-              <Button onClick={addPerson} size="icon">
-                <Plus className="w-4 h-4" />
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold">Members</h3>
+              <Button
+                size="sm"
+                onClick={() => {
+                  resetDialog();
+                  setDialogOpen(true);
+                }}
+              >
+                <Plus className="w-4 h-4 mr-1" /> Add Member
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="space-y-2">
               {people.length === 0 && (
                 <p className="text-sm text-muted-foreground">No members yet.</p>
               )}
               {people.map((p) => (
-                <div key={p.id} className="flex items-center gap-1 bg-muted rounded-full pl-3 pr-1 py-1 text-sm">
-                  <span>{p.name}</span>
+                <div key={p.id} className="flex items-center justify-between gap-2 bg-muted rounded-lg p-2">
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm truncate">{p.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {p.category || "—"} · {p.roles?.length ? p.roles.join(", ") : "no roles"}
+                    </div>
+                  </div>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-6 w-6"
+                    className="h-7 w-7 shrink-0"
                     onClick={() => deletePerson(p.id)}
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-4 h-4" />
                   </Button>
                 </div>
               ))}
@@ -309,6 +350,93 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
               ))}
             </div>
           </Card>
+
+          {/* Add member dialog */}
+          <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetDialog(); }}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {step === "name" && "New Member · Name"}
+                  {step === "category" && "Choose Department"}
+                  {step === "roles" && "Choose Role(s)"}
+                </DialogTitle>
+              </DialogHeader>
+
+              {step === "name" && (
+                <div className="space-y-2">
+                  <Label>Member name</Label>
+                  <Input
+                    autoFocus
+                    value={draftName}
+                    onChange={(e) => setDraftName(e.target.value)}
+                    placeholder="e.g. Juan Dela Cruz"
+                    onKeyDown={(e) => e.key === "Enter" && draftName.trim() && setStep("category")}
+                  />
+                </div>
+              )}
+
+              {step === "category" && (
+                <div className="space-y-2">
+                  <Label>Department</Label>
+                  {CATEGORIES.map((c) => (
+                    <Button
+                      key={c}
+                      variant={draftCategory === c ? "default" : "outline"}
+                      className="w-full justify-start"
+                      onClick={() => setDraftCategory(c)}
+                    >
+                      {c}
+                    </Button>
+                  ))}
+                </div>
+              )}
+
+              {step === "roles" && (
+                <div className="space-y-2">
+                  <Label>Select all roles this member can do</Label>
+                  <div className="space-y-2">
+                    {ALL_ROLES.map((r) => (
+                      <label key={r} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer">
+                        <Checkbox
+                          checked={draftRoles.includes(r)}
+                          onCheckedChange={() => toggleDraftRole(r)}
+                        />
+                        <span className="text-sm">{r}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <DialogFooter className="flex-row justify-between sm:justify-between">
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    if (step === "category") setStep("name");
+                    else if (step === "roles") setStep("category");
+                    else setDialogOpen(false);
+                  }}
+                >
+                  {step === "name" ? "Cancel" : "Back"}
+                </Button>
+                {step === "name" && (
+                  <Button disabled={!draftName.trim()} onClick={() => setStep("category")}>
+                    Next
+                  </Button>
+                )}
+                {step === "category" && (
+                  <Button disabled={!draftCategory} onClick={() => setStep("roles")}>
+                    Next
+                  </Button>
+                )}
+                {step === "roles" && (
+                  <Button disabled={draftRoles.length === 0} onClick={submitNewMember}>
+                    Add Member
+                  </Button>
+                )}
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </>
       )}
     </div>

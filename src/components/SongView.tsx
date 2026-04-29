@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { X, ChevronLeft, ChevronRight, Plus, Minus, Play } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Minus, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 interface Song {
   title: string;
@@ -16,9 +15,19 @@ interface SongViewProps {
 
 const transposeKey = (title: string) => `transpose:${title.trim().toLowerCase()}`;
 
+const SHARP_SCALE = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const FLAT_SCALE  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+
+const NOTE_INDEX: Record<string, number> = {
+  'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3, 'E': 4, 'F': 5,
+  'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11,
+};
+
 export const SongView = ({ songs, onClose }: SongViewProps) => {
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [transpose, setTransposeState] = useState(0);
+  const [showChords, setShowChords] = useState(true);
+  const [useSharps, setUseSharps] = useState(true);
 
   const currentSong = songs[currentSongIndex];
 
@@ -35,161 +44,155 @@ export const SongView = ({ songs, onClose }: SongViewProps) => {
     }
   };
 
-  const chordMap: { [key: string]: string[] } = {
-    'C': ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
-    'C#': ['C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C'],
-    'D': ['D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#'],
-    'D#': ['D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D'],
-    'E': ['E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#'],
-    'F': ['F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E'],
-    'F#': ['F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F'],
-    'G': ['G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#'],
-    'G#': ['G#', 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G'],
-    'A': ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'],
-    'A#': ['A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A'],
-    'B': ['B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#']
-  };
-
   const transposeChord = (chord: string) => {
-    const baseChord = chord.replace(/m|7|sus|\/.*$/g, '');
-    const suffix = chord.replace(baseChord, '');
-    
-    if (chordMap[baseChord]) {
-      const transposedIndex = (chordMap[baseChord].indexOf(baseChord) + transpose + 12) % 12;
-      return chordMap[baseChord][transposedIndex] + suffix;
-    }
-    return chord;
-  };
-
-  const processLyrics = (lyrics: string) => {
-    return lyrics.replace(/([A-G]#?(?:m|7|sus|\/[A-G]#?)*)/g, (match) => {
-      return `<span class="chord">${transposeChord(match)}</span>`;
+    return chord.replace(/([A-G](?:#|b)?)/g, (note) => {
+      const idx = NOTE_INDEX[note];
+      if (idx === undefined) return note;
+      const newIdx = (idx + transpose + 12) % 12;
+      return useSharps ? SHARP_SCALE[newIdx] : FLAT_SCALE[newIdx];
     });
   };
 
-  const nextSong = () => {
-    setCurrentSongIndex((prev) => (prev + 1) % songs.length);
+  // Render lyrics: chord lines (lines that are mostly chord tokens) become chord chips,
+  // other lines become lyric text. Section headers like [Verse 1] become badges.
+  const renderLyrics = (lyrics: string) => {
+    const lines = lyrics.split('\n');
+    const chordLineRegex = /^[\s]*([A-G](?:#|b)?(?:m|maj|min|sus|add|dim|aug|7|9|11|13)*(?:\/[A-G](?:#|b)?)?[\s]*)+$/;
+    const sectionRegex = /^\s*\[([^\]]+)\]\s*$/;
+
+    return lines.map((line, i) => {
+      const sec = line.match(sectionRegex);
+      if (sec) {
+        return (
+          <div key={i} className="flex justify-center my-4">
+            <span className="bg-primary text-primary-foreground px-4 py-1.5 rounded-md text-sm font-semibold">
+              {sec[1]}
+            </span>
+          </div>
+        );
+      }
+      if (line.trim() === '') {
+        return <div key={i} className="h-3" />;
+      }
+      if (showChords && chordLineRegex.test(line)) {
+        const chords = line.trim().split(/\s+/);
+        return (
+          <div key={i} className="flex flex-wrap gap-2 mb-1">
+            {chords.map((c, j) => (
+              <span
+                key={j}
+                className="bg-primary/10 text-primary font-bold px-2.5 py-1 rounded text-sm"
+              >
+                {transposeChord(c)}
+              </span>
+            ))}
+          </div>
+        );
+      }
+      return (
+        <p key={i} className="font-mono text-base text-foreground leading-relaxed mb-2">
+          {line}
+        </p>
+      );
+    });
   };
 
-  const prevSong = () => {
-    setCurrentSongIndex((prev) => (prev - 1 + songs.length) % songs.length);
-  };
+  const nextSong = () => setCurrentSongIndex((p) => (p + 1) % songs.length);
+  const prevSong = () => setCurrentSongIndex((p) => (p - 1 + songs.length) % songs.length);
+
+  const transposeLabel = transpose === 0 ? 'Original' : (transpose > 0 ? `+${transpose}` : `${transpose}`);
 
   return (
-    <div className="fixed inset-0 bg-gradient-hero z-50 overflow-y-auto flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header with controls */}
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          <Button
-            onClick={onClose}
-            variant="outline"
-            size="icon"
-            className="text-primary border-primary hover:bg-primary hover:text-white"
-          >
-            <X className="h-4 w-4" />
+    <div className="fixed inset-0 bg-gradient-hero z-50 overflow-y-auto">
+      <div className="max-w-2xl mx-auto px-4 pt-6 pb-32">
+        {/* Top bar */}
+        <div className="flex items-center justify-between mb-4">
+          <Button onClick={onClose} variant="ghost" size="icon" className="text-white hover:bg-white/20">
+            <ArrowLeft className="h-5 w-5" />
           </Button>
+          <h2 className="text-white font-medium">Praise &amp; Worship</h2>
+          <span className="text-white font-semibold">{currentSongIndex + 1}</span>
+        </div>
 
-          <div className="flex items-center space-x-2">
+        {/* Title */}
+        <h1 className="text-white text-3xl md:text-4xl font-bold text-center leading-tight mb-4">
+          {currentSong.title}
+        </h1>
+
+        {/* Has chords pill */}
+        <div className="flex justify-center mb-5">
+          <span className="border border-emerald-300/60 text-emerald-100 bg-emerald-500/10 px-3 py-0.5 rounded-full text-sm">
+            Has Chords
+          </span>
+        </div>
+
+        {/* Controls */}
+        <div className="flex justify-center gap-3 mb-4">
+          <button
+            onClick={() => setShowChords((v) => !v)}
+            className="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white px-4 py-2 rounded-lg text-sm font-medium"
+          >
+            {showChords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showChords ? 'Hide' : 'Show'}
+          </button>
+          <button
+            onClick={() => setUseSharps((v) => !v)}
+            className="bg-white/15 hover:bg-white/25 text-white px-4 py-2 rounded-lg text-sm font-medium"
+          >
+            {useSharps ? 'Sharps (#)' : 'Flats (b)'}
+          </button>
+        </div>
+
+        {/* Transpose */}
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <button
+            onClick={() => setTranspose(transpose - 1)}
+            className="bg-white/15 hover:bg-white/25 text-white rounded-full h-10 w-10 flex items-center justify-center"
+          >
+            <Minus className="h-4 w-4" />
+          </button>
+          <div className="text-center">
+            <div className="text-white/80 text-xs">Transpose</div>
+            <div className="text-white font-semibold">{transposeLabel}</div>
+          </div>
+          <button
+            onClick={() => setTranspose(transpose + 1)}
+            className="bg-white/15 hover:bg-white/25 text-white rounded-full h-10 w-10 flex items-center justify-center"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Lyric card */}
+        <div className="bg-white rounded-2xl shadow-xl p-5 md:p-6">
+          <div className="bg-muted/40 rounded-xl p-4 md:p-5">
+            {renderLyrics(currentSong.lyrics || '')}
+          </div>
+        </div>
+
+        {/* Bottom nav */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t px-4 py-3">
+          <div className="max-w-2xl mx-auto flex items-center justify-between">
             <Button
               onClick={prevSong}
-              variant="outline"
-              size="icon"
-              className="text-primary border-primary hover:bg-primary hover:text-white"
+              variant="ghost"
               disabled={songs.length <= 1}
+              className="text-primary"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 mr-1" /> Previous
             </Button>
-            
-            <span className="text-sm text-gray-600 min-w-[60px] text-center">
-              {currentSongIndex + 1} of {songs.length}
-            </span>
-
+            <div className="text-center text-sm">
+              <div className="text-muted-foreground">Song</div>
+              <div className="font-semibold">{currentSongIndex + 1} / {songs.length}</div>
+            </div>
             <Button
               onClick={nextSong}
-              variant="outline"
-              size="icon"
-              className="text-primary border-primary hover:bg-primary hover:text-white"
+              variant="ghost"
               disabled={songs.length <= 1}
+              className="text-primary"
             >
-              <ChevronRight className="h-4 w-4" />
+              Next <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              className="text-primary border-primary hover:bg-primary hover:text-white px-3 py-1 text-sm"
-            >
-              Set Key
-            </Button>
-            
-            <div className="flex items-center space-x-1">
-              <Button
-                onClick={() => setTranspose(transpose - 1)}
-                variant="outline"
-                size="icon"
-                className="text-primary border-primary hover:bg-primary hover:text-white h-8 w-8"
-              >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <Button
-                onClick={() => setTranspose(transpose + 1)}
-                variant="outline"
-                size="icon"
-                className="text-primary border-primary hover:bg-primary hover:text-white h-8 w-8"
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-
-            <Button
-              variant="outline"
-              className="text-primary border-primary hover:bg-primary hover:text-white px-3 py-1 text-sm"
-            >
-              Chords
-            </Button>
-          </div>
-        </div>
-
-        {/* Song title */}
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 text-center">{currentSong.title}</h2>
-        </div>
-
-        {/* Content area */}
-        <div className="flex-1 overflow-y-auto">
-          {/* YouTube Video */}
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-900">Video</h3>
-              <a 
-                href={currentSong.youtubeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-primary hover:text-primary-dark"
-              >
-                <Play className="h-4 w-4" />
-                <span className="text-sm">Watch on YouTube</span>
-              </a>
-            </div>
-            <div className="aspect-video">
-              <iframe
-                src={currentSong.youtubeUrl.replace('watch?v=', 'embed/').split('&')[0]}
-                className="w-full h-full rounded-lg"
-                allowFullScreen
-                title={currentSong.title}
-              />
-            </div>
-          </div>
-
-          {/* Lyrics and Chords */}
-          <div className="p-4">
-            <div 
-              className="font-mono text-sm whitespace-pre-line leading-relaxed"
-              dangerouslySetInnerHTML={{ 
-                __html: processLyrics(currentSong.lyrics)
-              }}
-            />
           </div>
         </div>
       </div>
