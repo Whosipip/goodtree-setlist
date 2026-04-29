@@ -60,6 +60,9 @@ export const SongView = ({ songs, onClose }: SongViewProps) => {
     const chordLineRegex = /^[\s]*([A-G](?:#|b)?(?:m|maj|min|sus|add|dim|aug|7|9|11|13)*(?:\/[A-G](?:#|b)?)?[\s]*)+$/;
     const sectionRegex = /^\s*\[([^\]]+)\]\s*$/;
 
+    // Matches chord tokens like G, Am, C#m7, Bb/D, Dsus4, F#maj7
+    const chordToken = /\b[A-G](?:#|b)?(?:m|maj|min|sus|add|dim|aug|7|9|11|13)*(?:\/[A-G](?:#|b)?)?\b/g;
+
     return lines.map((line, i) => {
       const sec = line.match(sectionRegex);
       if (sec) {
@@ -74,7 +77,22 @@ export const SongView = ({ songs, onClose }: SongViewProps) => {
       if (line.trim() === '') {
         return <div key={i} className="h-3" />;
       }
-      if (showChords && chordLineRegex.test(line)) {
+      const isChordOnly = chordLineRegex.test(line);
+
+      // When chords are hidden, drop chord-only lines entirely and strip
+      // inline chord tokens from lyric lines.
+      if (!showChords) {
+        if (isChordOnly) return null;
+        const stripped = line.replace(chordToken, '').replace(/\s{2,}/g, ' ').trim();
+        if (!stripped) return null;
+        return (
+          <p key={i} className="font-mono text-base text-foreground leading-relaxed mb-2">
+            {stripped}
+          </p>
+        );
+      }
+
+      if (isChordOnly) {
         const chords = line.trim().split(/\s+/);
         return (
           <div key={i} className="flex flex-wrap gap-2 mb-1">
