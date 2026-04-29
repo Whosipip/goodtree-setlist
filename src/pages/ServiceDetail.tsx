@@ -85,18 +85,17 @@ const ServiceDetail = () => {
                   No songs in this lineup yet.
                 </p>
               ) : (
-                <>
-                  <div className="space-y-2 mb-4">
-                    {songs.map((s, i) => (
-                      <div key={i} className="p-3 bg-muted rounded font-medium text-sm">
-                        {i + 1}. {s.title}
-                      </div>
-                    ))}
-                  </div>
-                  <Button onClick={() => setOpenSongs(true)} className="w-full">
-                    Open Chords &amp; Lyrics
-                  </Button>
-                </>
+                <div className="space-y-2">
+                  {songs.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setOpenSongs(true)}
+                      className="w-full text-left p-3 bg-muted hover:bg-primary/10 rounded font-medium text-sm transition-colors"
+                    >
+                      {i + 1}. {s.title}
+                    </button>
+                  ))}
+                </div>
               )}
             </Card>
           </TabsContent>
