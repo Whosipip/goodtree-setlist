@@ -237,7 +237,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero pb-24">
-      <div className="px-4 pt-8 pb-6 max-w-2xl mx-auto">
+      <div className="px-4 pt-8 pb-6 max-w-4xl mx-auto">
         <Button
           variant="secondary"
           size="sm"
