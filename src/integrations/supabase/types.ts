@@ -16,19 +16,25 @@ export type Database = {
     Tables: {
       roster_people: {
         Row: {
+          category: string | null
           created_at: string | null
           id: string
           name: string
+          roles: string[]
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           id?: string
           name: string
+          roles?: string[]
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           id?: string
           name?: string
+          roles?: string[]
         }
         Relationships: []
       }
