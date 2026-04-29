@@ -154,6 +154,8 @@ const Admin = () => {
     setOtherDate("");
     setOtherName("");
   };
+
+  const handleCreateSong = async () => {
     if (!newSong.title.trim()) {
       toast({ title: "Title required", variant: "destructive" });
       return;
