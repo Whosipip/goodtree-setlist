@@ -38,6 +38,7 @@ const Admin = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(WEDNESDAY_START);
   const [serviceId, setServiceId] = useState<string | null>(null);
   const [serviceNotes, setServiceNotes] = useState<string>("");
+  const [serviceStatus, setServiceStatus] = useState<string>("planning");
   const [setlist, setSetlist] = useState<SetlistEntry[]>([]);
   const [allSongs, setAllSongs] = useState<Song[]>([]);
   const [showAddSong, setShowAddSong] = useState(false);
@@ -76,18 +77,20 @@ const Admin = () => {
     const dateStr = format(date, "yyyy-MM-dd");
     const { data: service } = await supabase
       .from("services")
-      .select("id,notes")
+      .select("id,notes,status")
       .eq("service_date", dateStr)
       .maybeSingle();
 
     if (!service) {
       setServiceId(null);
       setServiceNotes("");
+      setServiceStatus("planning");
       setSetlist([]);
       return;
     }
     setServiceId(service.id);
     setServiceNotes(service.notes || "");
+    setServiceStatus((service as any).status || "planning");
     const { data: items } = await supabase
       .from("setlists")
       .select("id,song_id,position,song_time,songs(id,title,youtube_url,lyrics)")
@@ -95,6 +98,58 @@ const Admin = () => {
       .order("position");
     setSetlist((items as any) || []);
   };
+
+  const toggleCancelled = async () => {
+    if (!serviceId) {
+      toast({ title: "No service yet for this date", variant: "destructive" });
+      return;
+    }
+    const next = serviceStatus === "cancelled" ? "planning" : "cancelled";
+    if (next === "cancelled" && !confirm("Mark this service as CANCELLED? It will be hidden from the public list.")) return;
+    await supabase.from("services").update({ status: next }).eq("id", serviceId);
+    setServiceStatus(next);
+    toast({ title: next === "cancelled" ? "Service cancelled" : "Service restored" });
+  };
+
+  const moveSong = async (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= setlist.length) return;
+    const a = setlist[index];
+    const b = setlist[target];
+    const next = [...setlist];
+    next[index] = b;
+    next[target] = a;
+    setSetlist(next);
+    await Promise.all([
+      supabase.from("setlists").update({ position: target + 1 }).eq("id", a.id),
+      supabase.from("setlists").update({ position: index + 1 }).eq("id", b.id),
+    ]);
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData("text/plain", String(index));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    const from = parseInt(e.dataTransfer.getData("text/plain"), 10);
+    if (isNaN(from) || from === dropIndex) return;
+    const next = [...setlist];
+    const [moved] = next.splice(from, 1);
+    next.splice(dropIndex, 0, moved);
+    setSetlist(next);
+    // Persist new positions
+    await Promise.all(
+      next.map((it, i) => supabase.from("setlists").update({ position: i + 1 }).eq("id", it.id))
+    );
+  };
+
 
   const ensureService = async (): Promise<string | null> => {
     if (serviceId) return serviceId;
