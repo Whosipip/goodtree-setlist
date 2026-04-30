@@ -38,6 +38,7 @@ const ServiceDetail = () => {
         .filter(Boolean);
       setSongs(list);
       document.title = `${format(parseISO(data.service_date), "MMM d")} Praise & Worship`;
+      if (list.length > 0) setOpenSongs(true);
     })();
   }, [id]);
 
