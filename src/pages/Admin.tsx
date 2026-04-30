@@ -339,7 +339,20 @@ const Admin = () => {
                 {serviceNotes && (
                   <div className="text-xs text-primary mt-1">📌 {serviceNotes}</div>
                 )}
+                {serviceStatus === "cancelled" && (
+                  <div className="text-xs font-bold text-destructive mt-1">⛔ CANCELLED</div>
+                )}
               </div>
+            )}
+            {selectedDate && serviceId && (
+              <Button
+                onClick={toggleCancelled}
+                variant={serviceStatus === "cancelled" ? "outline" : "destructive"}
+                size="sm"
+                className="w-full mt-3"
+              >
+                {serviceStatus === "cancelled" ? "Restore Service" : "Cancel Service"}
+              </Button>
             )}
           </Card>
 
