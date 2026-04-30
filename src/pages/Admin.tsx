@@ -494,21 +494,40 @@ const Admin = () => {
               </p>
             ) : (
               <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">Drag songs to reorder, or use the arrows.</p>
                 {setlist.map((item, i) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 bg-muted rounded">
-                    <div>
-                      <div className="font-medium text-sm">
-                        {i + 1}. {item.songs?.title}
-                      </div>
-                      {item.song_time && (
-                        <div className="text-xs text-muted-foreground">
-                          {item.song_time.slice(0, 5)}
+                  <div
+                    key={item.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, i)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, i)}
+                    className="flex items-center justify-between p-3 bg-muted rounded cursor-move hover:bg-muted/80"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-muted-foreground select-none">⋮⋮</span>
+                      <div className="min-w-0">
+                        <div className="font-medium text-sm truncate">
+                          {i + 1}. {item.songs?.title}
                         </div>
-                      )}
+                        {item.song_time && (
+                          <div className="text-xs text-muted-foreground">
+                            {item.song_time.slice(0, 5)}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <Button size="icon" variant="ghost" onClick={() => handleRemove(item.id)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => moveSong(i, -1)}>
+                        ↑
+                      </Button>
+                      <Button size="icon" variant="ghost" disabled={i === setlist.length - 1} onClick={() => moveSong(i, 1)}>
+                        ↓
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => handleRemove(item.id)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
