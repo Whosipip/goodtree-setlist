@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X, Settings } from "lucide-react";
 
 type Category = "Highschool" | "Elementary";
 
@@ -17,7 +17,7 @@ interface Slot {
   count: number;
 }
 
-const SLOTS: Slot[] = [
+const DEFAULT_SLOTS: Slot[] = [
   { role: "Songleader", count: 1 },
   { role: "Backup Singer", count: 4 },
   { role: "Guitarist", count: 3 },
@@ -25,10 +25,10 @@ const SLOTS: Slot[] = [
   { role: "Pianist", count: 1 },
   { role: "Drummer", count: 1 },
   { role: "Media", count: 1 },
-  { role: "Tambourine", count: 1 },
+  { role: "Tambourine", count: 2 },
 ];
 
-const ALL_ROLES = SLOTS.map((s) => s.role);
+const ALL_ROLES = DEFAULT_SLOTS.map((s) => s.role);
 const CATEGORIES: Category[] = ["Highschool", "Elementary"];
 
 interface Member {
@@ -65,6 +65,10 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const [people, setPeople] = useState<Person[]>([]);
   const [presets, setPresets] = useState<Preset[]>([]);
   const [newPresetName, setNewPresetName] = useState("");
+  const [slots, setSlots] = useState<Slot[]>(DEFAULT_SLOTS);
+  const [joint, setJoint] = useState(false);
+  const [countsOpen, setCountsOpen] = useState(false);
+  const [draftCounts, setDraftCounts] = useState<Record<string, number>>({});
 
   // Add-member dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -77,11 +81,22 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     load();
     loadPeople();
     loadPresets();
+    loadServiceConfig();
   }, [serviceId]);
 
   const load = async () => {
     const { data } = await supabase.from("team_members").select("*").eq("service_id", serviceId);
     setMembers((data as any) || []);
+  };
+
+  const loadServiceConfig = async () => {
+    const { data } = await supabase.from("services").select("role_counts").eq("id", serviceId).maybeSingle();
+    const rc = (data as any)?.role_counts;
+    if (rc && typeof rc === "object") {
+      setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: rc[s.role] ?? s.count })));
+    } else {
+      setSlots(DEFAULT_SLOTS);
+    }
   };
 
   const loadPeople = async () => {
@@ -111,10 +126,11 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     });
   };
 
-  // People eligible for a given category + role slot
-  const eligiblePeople = (cat: Category, role: string) =>
+  const eligiblePeople = (cat: Category | null, role: string) =>
     people.filter(
-      (p) => (!p.category || p.category === cat) && (p.roles?.length ? p.roles.includes(role) : true)
+      (p) =>
+        (cat === null || !p.category || p.category === cat) &&
+        (p.roles?.length ? p.roles.includes(role) : true)
     );
 
   const save = async () => {
@@ -222,56 +238,108 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     await loadPresets();
   };
 
+  const openCountsDialog = () => {
+    const map: Record<string, number> = {};
+    slots.forEach((s) => (map[s.role] = s.count));
+    setDraftCounts(map);
+    setCountsOpen(true);
+  };
+
+  const saveCounts = async () => {
+    const cleaned: Record<string, number> = {};
+    DEFAULT_SLOTS.forEach((s) => {
+      const v = Math.max(0, Math.min(20, Number(draftCounts[s.role]) || 0));
+      cleaned[s.role] = v;
+    });
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
+    setCountsOpen(false);
+    toast({ title: "Role counts updated" });
+  };
+
+  const renderRosterFor = (cat: Category | null, label: string) => (
+    <Card className="p-4 bg-white/95">
+      <h3 className="font-bold text-lg mb-3 text-primary">{label}</h3>
+      <div className="space-y-4">
+        {slots.filter((s) => s.count > 0).map((slot) => (
+          <div key={slot.role}>
+            <div className="text-sm font-semibold mb-2 text-foreground">
+              {slot.role}
+              {slot.count > 1 ? "s" : ""} ({slot.count})
+            </div>
+            <div className="space-y-2">
+              {Array.from({ length: slot.count }).map((_, i) => {
+                const pos = i + 1;
+                // For "Joint" we still store under Highschool category to keep one row per slot.
+                const storeCat: Category = cat ?? "Highschool";
+                const name = getName(storeCat, slot.role, pos);
+                const options = eligiblePeople(cat, slot.role);
+                return editable ? (
+                  <Select
+                    key={pos}
+                    value={name || NONE_VALUE}
+                    onValueChange={(v) => setName(storeCat, slot.role, pos, v === NONE_VALUE ? "" : v)}
+                  >
+                    <SelectTrigger className="rounded-full">
+                      <SelectValue placeholder="Choose member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE_VALUE}>— None —</SelectItem>
+                      {options.map((p) => (
+                        <SelectItem key={p.id} value={p.name}>
+                          {p.name}
+                          {p.category ? ` · ${p.category}` : ""}
+                        </SelectItem>
+                      ))}
+                      {name && !options.some((p) => p.name === name) && (
+                        <SelectItem value={name}>{name}</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div key={pos} className="px-4 py-2 bg-muted rounded-full text-sm">
+                    {name || <span className="text-muted-foreground italic">— Not assigned —</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+
   return (
     <div className="space-y-4">
-      {CATEGORIES.map((cat) => (
-        <Card key={cat} className="p-4 bg-white/95">
-          <h3 className="font-bold text-lg mb-3 text-primary">{cat}</h3>
-          <div className="space-y-4">
-            {SLOTS.map((slot) => (
-              <div key={slot.role}>
-                <div className="text-sm font-semibold mb-2 text-foreground">
-                  {slot.role}
-                  {slot.count > 1 ? "s" : ""} ({slot.count})
-                </div>
-                <div className="space-y-2">
-                  {Array.from({ length: slot.count }).map((_, i) => {
-                    const pos = i + 1;
-                    const name = getName(cat, slot.role, pos);
-                    const options = eligiblePeople(cat, slot.role);
-                    return editable ? (
-                      <Select
-                        key={pos}
-                        value={name || NONE_VALUE}
-                        onValueChange={(v) => setName(cat, slot.role, pos, v === NONE_VALUE ? "" : v)}
-                      >
-                        <SelectTrigger className="rounded-full">
-                          <SelectValue placeholder="Choose member" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE_VALUE}>— None —</SelectItem>
-                          {options.map((p) => (
-                            <SelectItem key={p.id} value={p.name}>
-                              {p.name}
-                            </SelectItem>
-                          ))}
-                          {name && !options.some((p) => p.name === name) && (
-                            <SelectItem value={name}>{name}</SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <div key={pos} className="px-4 py-2 bg-muted rounded-full text-sm">
-                        {name || <span className="text-muted-foreground italic">— Not assigned —</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      ))}
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant={joint ? "outline" : "default"}
+          onClick={() => setJoint(false)}
+          className="flex-1"
+        >
+          By Department
+        </Button>
+        <Button
+          size="sm"
+          variant={joint ? "default" : "outline"}
+          onClick={() => setJoint(true)}
+          className="flex-1"
+        >
+          Joint
+        </Button>
+        {editable && (
+          <Button size="sm" variant="secondary" onClick={openCountsDialog}>
+            <Settings className="w-4 h-4 mr-1" /> Counts
+          </Button>
+        )}
+      </div>
+
+      {joint
+        ? renderRosterFor(null, "Joint (All Departments)")
+        : CATEGORIES.map((cat) => (
+            <div key={cat}>{renderRosterFor(cat, cat)}</div>
+          ))}
 
       {editable && (
         <>
@@ -351,6 +419,36 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
               ))}
             </div>
           </Card>
+
+          {/* Counts dialog */}
+          <Dialog open={countsOpen} onOpenChange={setCountsOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Adjust people per role</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                {DEFAULT_SLOTS.map((s) => (
+                  <div key={s.role} className="flex items-center justify-between gap-3">
+                    <Label className="flex-1">{s.role}</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={20}
+                      value={draftCounts[s.role] ?? s.count}
+                      onChange={(e) =>
+                        setDraftCounts((p) => ({ ...p, [s.role]: Number(e.target.value) }))
+                      }
+                      className="w-24"
+                    />
+                  </div>
+                ))}
+              </div>
+              <DialogFooter>
+                <Button variant="ghost" onClick={() => setCountsOpen(false)}>Cancel</Button>
+                <Button onClick={saveCounts}>Save Counts</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {/* Add member dialog */}
           <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetDialog(); }}>
