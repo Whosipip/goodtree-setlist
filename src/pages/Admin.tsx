@@ -38,6 +38,7 @@ const Admin = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(WEDNESDAY_START);
   const [serviceId, setServiceId] = useState<string | null>(null);
   const [serviceNotes, setServiceNotes] = useState<string>("");
+  const [serviceStatus, setServiceStatus] = useState<string>("planning");
   const [setlist, setSetlist] = useState<SetlistEntry[]>([]);
   const [allSongs, setAllSongs] = useState<Song[]>([]);
   const [showAddSong, setShowAddSong] = useState(false);
@@ -76,18 +77,20 @@ const Admin = () => {
     const dateStr = format(date, "yyyy-MM-dd");
     const { data: service } = await supabase
       .from("services")
-      .select("id,notes")
+      .select("id,notes,status")
       .eq("service_date", dateStr)
       .maybeSingle();
 
     if (!service) {
       setServiceId(null);
       setServiceNotes("");
+      setServiceStatus("planning");
       setSetlist([]);
       return;
     }
     setServiceId(service.id);
     setServiceNotes(service.notes || "");
+    setServiceStatus((service as any).status || "planning");
     const { data: items } = await supabase
       .from("setlists")
       .select("id,song_id,position,song_time,songs(id,title,youtube_url,lyrics)")
@@ -95,6 +98,58 @@ const Admin = () => {
       .order("position");
     setSetlist((items as any) || []);
   };
+
+  const toggleCancelled = async () => {
+    if (!serviceId) {
+      toast({ title: "No service yet for this date", variant: "destructive" });
+      return;
+    }
+    const next = serviceStatus === "cancelled" ? "planning" : "cancelled";
+    if (next === "cancelled" && !confirm("Mark this service as CANCELLED? It will be hidden from the public list.")) return;
+    await supabase.from("services").update({ status: next }).eq("id", serviceId);
+    setServiceStatus(next);
+    toast({ title: next === "cancelled" ? "Service cancelled" : "Service restored" });
+  };
+
+  const moveSong = async (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= setlist.length) return;
+    const a = setlist[index];
+    const b = setlist[target];
+    const next = [...setlist];
+    next[index] = b;
+    next[target] = a;
+    setSetlist(next);
+    await Promise.all([
+      supabase.from("setlists").update({ position: target + 1 }).eq("id", a.id),
+      supabase.from("setlists").update({ position: index + 1 }).eq("id", b.id),
+    ]);
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData("text/plain", String(index));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    const from = parseInt(e.dataTransfer.getData("text/plain"), 10);
+    if (isNaN(from) || from === dropIndex) return;
+    const next = [...setlist];
+    const [moved] = next.splice(from, 1);
+    next.splice(dropIndex, 0, moved);
+    setSetlist(next);
+    // Persist new positions
+    await Promise.all(
+      next.map((it, i) => supabase.from("setlists").update({ position: i + 1 }).eq("id", it.id))
+    );
+  };
+
 
   const ensureService = async (): Promise<string | null> => {
     if (serviceId) return serviceId;
@@ -284,7 +339,20 @@ const Admin = () => {
                 {serviceNotes && (
                   <div className="text-xs text-primary mt-1">📌 {serviceNotes}</div>
                 )}
+                {serviceStatus === "cancelled" && (
+                  <div className="text-xs font-bold text-destructive mt-1">⛔ CANCELLED</div>
+                )}
               </div>
+            )}
+            {selectedDate && serviceId && (
+              <Button
+                onClick={toggleCancelled}
+                variant={serviceStatus === "cancelled" ? "outline" : "destructive"}
+                size="sm"
+                className="w-full mt-3"
+              >
+                {serviceStatus === "cancelled" ? "Restore Service" : "Cancel Service"}
+              </Button>
             )}
           </Card>
 
@@ -426,21 +494,40 @@ const Admin = () => {
               </p>
             ) : (
               <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">Drag songs to reorder, or use the arrows.</p>
                 {setlist.map((item, i) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 bg-muted rounded">
-                    <div>
-                      <div className="font-medium text-sm">
-                        {i + 1}. {item.songs?.title}
-                      </div>
-                      {item.song_time && (
-                        <div className="text-xs text-muted-foreground">
-                          {item.song_time.slice(0, 5)}
+                  <div
+                    key={item.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, i)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, i)}
+                    className="flex items-center justify-between p-3 bg-muted rounded cursor-move hover:bg-muted/80"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-muted-foreground select-none">⋮⋮</span>
+                      <div className="min-w-0">
+                        <div className="font-medium text-sm truncate">
+                          {i + 1}. {item.songs?.title}
                         </div>
-                      )}
+                        {item.song_time && (
+                          <div className="text-xs text-muted-foreground">
+                            {item.song_time.slice(0, 5)}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <Button size="icon" variant="ghost" onClick={() => handleRemove(item.id)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => moveSong(i, -1)}>
+                        ↑
+                      </Button>
+                      <Button size="icon" variant="ghost" disabled={i === setlist.length - 1} onClick={() => moveSong(i, 1)}>
+                        ↓
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => handleRemove(item.id)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

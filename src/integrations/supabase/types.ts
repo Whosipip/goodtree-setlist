@@ -44,6 +44,7 @@ export type Database = {
           created_by: string | null
           id: string
           notes: string | null
+          role_counts: Json | null
           service_date: string
           service_time: string | null
           status: string | null
@@ -54,6 +55,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           notes?: string | null
+          role_counts?: Json | null
           service_date: string
           service_time?: string | null
           status?: string | null
@@ -64,6 +66,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           notes?: string | null
+          role_counts?: Json | null
           service_date?: string
           service_time?: string | null
           status?: string | null
