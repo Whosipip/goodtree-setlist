@@ -204,10 +204,13 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
       toast({ title: "Preset name required", variant: "destructive" });
       return;
     }
-    const data = members
+    const memberData = members
       .filter((m) => m.name.trim())
       .map(({ category, role, position, name }) => ({ category, role, position, name }));
-    const { error } = await supabase.from("team_presets").insert({ name: n, data: data as any });
+    const counts: Record<string, number> = {};
+    slots.forEach((s) => (counts[s.role] = s.count));
+    const payload = { members: memberData, counts };
+    const { error } = await supabase.from("team_presets").insert({ name: n, data: payload as any });
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       return;
@@ -219,8 +222,13 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
   const applyPreset = async (preset: Preset) => {
     if (!confirm(`Apply preset "${preset.name}"? This replaces current assignments.`)) return;
+    const raw: any = preset.data;
+    // Backward compat: old presets stored a plain array of members.
+    const memberRows: any[] = Array.isArray(raw) ? raw : raw?.members || [];
+    const counts: Record<string, number> | undefined = Array.isArray(raw) ? undefined : raw?.counts;
+
     await supabase.from("team_members").delete().eq("service_id", serviceId);
-    const rows = (preset.data || []).map((d: any) => ({
+    const rows = memberRows.map((d: any) => ({
       service_id: serviceId,
       category: d.category,
       role: d.role,
@@ -228,6 +236,15 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
       name: d.name,
     }));
     if (rows.length) await supabase.from("team_members").insert(rows);
+
+    if (counts && typeof counts === "object") {
+      const cleaned: Record<string, number> = {};
+      DEFAULT_SLOTS.forEach((s) => {
+        cleaned[s.role] = counts[s.role] ?? s.count;
+      });
+      await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+      setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
+    }
     await load();
     toast({ title: `Applied "${preset.name}"` });
   };
