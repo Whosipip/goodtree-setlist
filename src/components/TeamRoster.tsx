@@ -437,9 +437,12 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
       {joint
         ? renderRosterFor(null, "Joint (All Departments)")
-        : CATEGORIES.map((cat) => (
-            <div key={cat}>{renderRosterFor(cat, cat)}</div>
-          ))}
+        : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {renderRosterFor("Highschool", "Highschool")}
+            {renderRosterFor("Elementary", "Elementary")}
+          </div>
+        )}
 
       {editable && (
         <>
