@@ -288,14 +288,30 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
   const saveCounts = async () => {
     const cleaned: Record<string, number> = {};
-    DEFAULT_SLOTS.forEach((s) => {
+    slots.forEach((s) => {
       const v = Math.max(0, Math.min(20, Number(draftCounts[s.role]) || 0));
       cleaned[s.role] = v;
     });
     await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
-    setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
+    setSlots(slots.map((s) => ({ ...s, count: cleaned[s.role] ?? s.count })));
     setCountsOpen(false);
     toast({ title: "Role counts updated" });
+  };
+
+  const addRole = async () => {
+    const name = newRoleInput.trim();
+    if (!name) return;
+    if (slots.some((s) => s.role.toLowerCase() === name.toLowerCase())) {
+      toast({ title: "Role already exists", variant: "destructive" });
+      return;
+    }
+    const next = [...slots, { role: name, count: 1 }];
+    setSlots(next);
+    setNewRoleInput("");
+    const cleaned: Record<string, number> = {};
+    next.forEach((s) => (cleaned[s.role] = s.count));
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    toast({ title: `Added role: ${name}` });
   };
 
   const bumpSlot = async (role: string, delta: number) => {
