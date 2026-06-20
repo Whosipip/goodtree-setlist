@@ -274,54 +274,137 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     toast({ title: "Role counts updated" });
   };
 
+  const bumpSlot = async (role: string, delta: number) => {
+    const next = slots.map((s) =>
+      s.role === role ? { ...s, count: Math.max(0, Math.min(20, s.count + delta)) } : s
+    );
+    setSlots(next);
+    // Persist immediately to services.role_counts so it survives reloads.
+    if (editable) {
+      const cleaned: Record<string, number> = {};
+      next.forEach((s) => (cleaned[s.role] = s.count));
+      // If removing a slot, also clear any name stored at that position.
+      if (delta < 0) {
+        const removedPos = (slots.find((s) => s.role === role)?.count ?? 0);
+        const victims = members.filter(
+          (m) => m.role === role && m.position === removedPos
+        );
+        for (const v of victims) {
+          if (v.id) await supabase.from("team_members").delete().eq("id", v.id);
+        }
+        setMembers((prev) => prev.filter((m) => !(m.role === role && m.position === removedPos)));
+      }
+      await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    }
+  };
+
   const renderRosterFor = (cat: Category | null, label: string) => (
     <Card className="p-4 bg-white/95">
-      <h3 className="font-bold text-lg mb-3 text-primary">{label}</h3>
-      <div className="space-y-4">
-        {slots.filter((s) => s.count > 0).map((slot) => (
-          <div key={slot.role}>
-            <div className="text-sm font-semibold mb-2 text-foreground">
-              {slot.role}
-              {slot.count > 1 ? "s" : ""} ({slot.count})
-            </div>
-            <div className="space-y-2">
-              {Array.from({ length: slot.count }).map((_, i) => {
-                const pos = i + 1;
-                // For "Joint" we still store under Highschool category to keep one row per slot.
-                const storeCat: Category = cat ?? "Highschool";
-                const name = getName(storeCat, slot.role, pos);
-                const options = eligiblePeople(cat, slot.role);
-                return editable ? (
-                  <Select
-                    key={pos}
-                    value={name || NONE_VALUE}
-                    onValueChange={(v) => setName(storeCat, slot.role, pos, v === NONE_VALUE ? "" : v)}
-                  >
-                    <SelectTrigger className="rounded-full">
-                      <SelectValue placeholder="Choose member" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NONE_VALUE}>— None —</SelectItem>
-                      {options.map((p) => (
-                        <SelectItem key={p.id} value={p.name}>
-                          {p.name}
-                          {p.category ? ` · ${p.category}` : ""}
-                        </SelectItem>
-                      ))}
-                      {name && !options.some((p) => p.name === name) && (
-                        <SelectItem value={name}>{name}</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <div key={pos} className="px-4 py-2 bg-muted rounded-full text-sm">
-                    {name || <span className="text-muted-foreground italic">— Not assigned —</span>}
+      <h3 className="font-bold text-lg mb-4 text-primary flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-primary inline-block" />
+        {label}
+      </h3>
+      <div className="space-y-5">
+        {slots.map((slot) => {
+          const storeCat: Category = cat ?? "Highschool";
+          return (
+            <div key={slot.role}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                  {slot.role} ({slot.count})
+                </div>
+                {editable && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => bumpSlot(slot.role, -1)}
+                      className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-primary"
+                      aria-label={`Remove one ${slot.role}`}
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => bumpSlot(slot.role, 1)}
+                      className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-primary"
+                      aria-label={`Add one ${slot.role}`}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
                   </div>
-                );
-              })}
+                )}
+              </div>
+              <div className="space-y-1.5">
+                {Array.from({ length: slot.count }).map((_, i) => {
+                  const pos = i + 1;
+                  const name = getName(storeCat, slot.role, pos);
+                  const options = eligiblePeople(cat, slot.role);
+                  return (
+                    <div key={pos} className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground w-6 shrink-0">{pos}:</span>
+                      <div className="flex-1 min-w-0">
+                        {editable ? (
+                          name ? (
+                            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium max-w-full">
+                              <span className="truncate">{name}</span>
+                              <button
+                                type="button"
+                                onClick={() => setName(storeCat, slot.role, pos, "")}
+                                className="shrink-0 hover:text-destructive"
+                                aria-label="Clear"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <Select
+                              value={NONE_VALUE}
+                              onValueChange={(v) =>
+                                setName(storeCat, slot.role, pos, v === NONE_VALUE ? "" : v)
+                              }
+                            >
+                              <SelectTrigger className="rounded-full h-8 text-sm border-dashed">
+                                <SelectValue placeholder="Choose member" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value={NONE_VALUE}>— None —</SelectItem>
+                                {options.map((p) => (
+                                  <SelectItem key={p.id} value={p.name}>
+                                    {p.name}
+                                    {p.category ? ` · ${p.category}` : ""}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )
+                        ) : name ? (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium max-w-full">
+                            <span className="truncate">{name}</span>
+                          </span>
+                        ) : (
+                          <span className="text-sm text-muted-foreground italic">— Not assigned —</span>
+                        )}
+                      </div>
+                      {editable && (
+                        <button
+                          type="button"
+                          onClick={() => bumpSlot(slot.role, 1)}
+                          className="shrink-0 w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-primary"
+                          aria-label="Add slot"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+                {slot.count === 0 && (
+                  <p className="text-xs text-muted-foreground italic pl-8">No slots — press + to add.</p>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Card>
   );
