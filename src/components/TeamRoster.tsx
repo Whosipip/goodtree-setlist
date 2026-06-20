@@ -28,7 +28,7 @@ const DEFAULT_SLOTS: Slot[] = [
   { role: "Tambourine", count: 2 },
 ];
 
-const ALL_ROLES = DEFAULT_SLOTS.map((s) => s.role);
+
 const CATEGORIES: Category[] = ["Highschool", "Elementary"];
 
 interface Member {
