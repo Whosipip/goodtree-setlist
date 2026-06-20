@@ -251,11 +251,23 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
     if (counts && typeof counts === "object") {
       const cleaned: Record<string, number> = {};
-      DEFAULT_SLOTS.forEach((s) => {
+      slots.forEach((s) => {
         cleaned[s.role] = counts[s.role] ?? s.count;
       });
+      Object.entries(counts).forEach(([role, count]) => {
+        if (!(role in cleaned)) cleaned[role] = Number(count) || 1;
+      });
       await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
-      setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
+      const defaultOrder = DEFAULT_SLOTS.map((s) => s.role);
+      const orderedRoles = Object.keys(cleaned).sort((a, b) => {
+        const ai = defaultOrder.indexOf(a);
+        const bi = defaultOrder.indexOf(b);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b);
+      });
+      setSlots(orderedRoles.map((role) => ({ role, count: cleaned[role] })));
     }
     await load();
     toast({ title: `Applied "${preset.name}"` });
