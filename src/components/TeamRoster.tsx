@@ -529,6 +529,18 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                   </Button>
                 </div>
               ))}
+              <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+                <Input
+                  placeholder="New role name..."
+                  value={newRoleInput}
+                  onChange={(e) => setNewRoleInput(e.target.value)}
+                  className="h-8 text-sm flex-1"
+                  onKeyDown={(e) => e.key === "Enter" && addRole()}
+                />
+                <Button size="sm" onClick={addRole}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </Card>
 
