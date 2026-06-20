@@ -69,6 +69,7 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const [joint, setJoint] = useState(false);
   const [countsOpen, setCountsOpen] = useState(false);
   const [draftCounts, setDraftCounts] = useState<Record<string, number>>({});
+  const [newRoleInput, setNewRoleInput] = useState("");
 
   // Add-member dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
