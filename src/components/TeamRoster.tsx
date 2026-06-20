@@ -93,8 +93,19 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const loadServiceConfig = async () => {
     const { data } = await supabase.from("services").select("role_counts").eq("id", serviceId).maybeSingle();
     const rc = (data as any)?.role_counts;
-    if (rc && typeof rc === "object") {
-      setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: rc[s.role] ?? s.count })));
+    if (rc && typeof rc === "object" && Object.keys(rc).length > 0) {
+      const defaultMap = Object.fromEntries(DEFAULT_SLOTS.map((s) => [s.role, s.count]));
+      const allRoles = Array.from(new Set([...DEFAULT_SLOTS.map((s) => s.role), ...Object.keys(rc)]));
+      const defaultOrder = DEFAULT_SLOTS.map((s) => s.role);
+      const ordered = [...allRoles].sort((a, b) => {
+        const ai = defaultOrder.indexOf(a);
+        const bi = defaultOrder.indexOf(b);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b);
+      });
+      setSlots(ordered.map((role) => ({ role, count: Number(rc[role] ?? defaultMap[role] ?? 1) })));
     } else {
       setSlots(DEFAULT_SLOTS);
     }
