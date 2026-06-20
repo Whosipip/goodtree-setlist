@@ -28,7 +28,7 @@ const DEFAULT_SLOTS: Slot[] = [
   { role: "Tambourine", count: 2 },
 ];
 
-const ALL_ROLES = DEFAULT_SLOTS.map((s) => s.role);
+
 const CATEGORIES: Category[] = ["Highschool", "Elementary"];
 
 interface Member {
@@ -69,6 +69,7 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const [joint, setJoint] = useState(false);
   const [countsOpen, setCountsOpen] = useState(false);
   const [draftCounts, setDraftCounts] = useState<Record<string, number>>({});
+  const [newRoleInput, setNewRoleInput] = useState("");
 
   // Add-member dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -92,8 +93,19 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const loadServiceConfig = async () => {
     const { data } = await supabase.from("services").select("role_counts").eq("id", serviceId).maybeSingle();
     const rc = (data as any)?.role_counts;
-    if (rc && typeof rc === "object") {
-      setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: rc[s.role] ?? s.count })));
+    if (rc && typeof rc === "object" && Object.keys(rc).length > 0) {
+      const defaultMap = Object.fromEntries(DEFAULT_SLOTS.map((s) => [s.role, s.count]));
+      const allRoles = Array.from(new Set([...DEFAULT_SLOTS.map((s) => s.role), ...Object.keys(rc)]));
+      const defaultOrder = DEFAULT_SLOTS.map((s) => s.role);
+      const ordered = [...allRoles].sort((a, b) => {
+        const ai = defaultOrder.indexOf(a);
+        const bi = defaultOrder.indexOf(b);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b);
+      });
+      setSlots(ordered.map((role) => ({ role, count: Number(rc[role] ?? defaultMap[role] ?? 1) })));
     } else {
       setSlots(DEFAULT_SLOTS);
     }
@@ -239,11 +251,23 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
     if (counts && typeof counts === "object") {
       const cleaned: Record<string, number> = {};
-      DEFAULT_SLOTS.forEach((s) => {
+      slots.forEach((s) => {
         cleaned[s.role] = counts[s.role] ?? s.count;
       });
+      Object.entries(counts).forEach(([role, count]) => {
+        if (!(role in cleaned)) cleaned[role] = Number(count) || 1;
+      });
       await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
-      setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
+      const defaultOrder = DEFAULT_SLOTS.map((s) => s.role);
+      const orderedRoles = Object.keys(cleaned).sort((a, b) => {
+        const ai = defaultOrder.indexOf(a);
+        const bi = defaultOrder.indexOf(b);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b);
+      });
+      setSlots(orderedRoles.map((role) => ({ role, count: cleaned[role] })));
     }
     await load();
     toast({ title: `Applied "${preset.name}"` });
@@ -264,14 +288,30 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
   const saveCounts = async () => {
     const cleaned: Record<string, number> = {};
-    DEFAULT_SLOTS.forEach((s) => {
+    slots.forEach((s) => {
       const v = Math.max(0, Math.min(20, Number(draftCounts[s.role]) || 0));
       cleaned[s.role] = v;
     });
     await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
-    setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
+    setSlots(slots.map((s) => ({ ...s, count: cleaned[s.role] ?? s.count })));
     setCountsOpen(false);
     toast({ title: "Role counts updated" });
+  };
+
+  const addRole = async () => {
+    const name = newRoleInput.trim();
+    if (!name) return;
+    if (slots.some((s) => s.role.toLowerCase() === name.toLowerCase())) {
+      toast({ title: "Role already exists", variant: "destructive" });
+      return;
+    }
+    const next = [...slots, { role: name, count: 1 }];
+    setSlots(next);
+    setNewRoleInput("");
+    const cleaned: Record<string, number> = {};
+    next.forEach((s) => (cleaned[s.role] = s.count));
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    toast({ title: `Added role: ${name}` });
   };
 
   const bumpSlot = async (role: string, delta: number) => {
@@ -489,6 +529,18 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                   </Button>
                 </div>
               ))}
+              <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+                <Input
+                  placeholder="New role name..."
+                  value={newRoleInput}
+                  onChange={(e) => setNewRoleInput(e.target.value)}
+                  className="h-8 text-sm flex-1"
+                  onKeyDown={(e) => e.key === "Enter" && addRole()}
+                />
+                <Button size="sm" onClick={addRole}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </Card>
 
@@ -597,13 +649,13 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                 <div className="space-y-2">
                   <Label>Select all roles this member can do</Label>
                   <div className="space-y-2">
-                    {ALL_ROLES.map((r) => (
-                      <label key={r} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer">
+                    {slots.map((s) => (
+                      <label key={s.role} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer">
                         <Checkbox
-                          checked={draftRoles.includes(r)}
-                          onCheckedChange={() => toggleDraftRole(r)}
+                          checked={draftRoles.includes(s.role)}
+                          onCheckedChange={() => toggleDraftRole(s.role)}
                         />
-                        <span className="text-sm">{r}</span>
+                        <span className="text-sm">{s.role}</span>
                       </label>
                     ))}
                   </div>
