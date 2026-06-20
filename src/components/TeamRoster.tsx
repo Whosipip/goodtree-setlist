@@ -597,13 +597,13 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                 <div className="space-y-2">
                   <Label>Select all roles this member can do</Label>
                   <div className="space-y-2">
-                    {ALL_ROLES.map((r) => (
-                      <label key={r} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer">
+                    {slots.map((s) => (
+                      <label key={s.role} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer">
                         <Checkbox
-                          checked={draftRoles.includes(r)}
-                          onCheckedChange={() => toggleDraftRole(r)}
+                          checked={draftRoles.includes(s.role)}
+                          onCheckedChange={() => toggleDraftRole(s.role)}
                         />
-                        <span className="text-sm">{r}</span>
+                        <span className="text-sm">{s.role}</span>
                       </label>
                     ))}
                   </div>
