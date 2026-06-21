@@ -113,6 +113,8 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     });
     return next;
   };
+
+  const loadServiceConfig = async () => {
     const { data } = await supabase.from("services").select("role_counts").eq("id", serviceId).maybeSingle();
     const rc = (data as any)?.role_counts;
     if (rc && typeof rc === "object") {
