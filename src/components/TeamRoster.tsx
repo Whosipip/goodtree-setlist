@@ -474,9 +474,14 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
           Joint
         </Button>
         {editable && (
-          <Button size="sm" variant="secondary" onClick={openCountsDialog}>
-            <Settings className="w-4 h-4 mr-1" /> Counts
-          </Button>
+          <>
+            <Button size="sm" variant="secondary" onClick={addCustomRole}>
+              <Plus className="w-4 h-4 mr-1" /> Role
+            </Button>
+            <Button size="sm" variant="secondary" onClick={openCountsDialog}>
+              <Settings className="w-4 h-4 mr-1" /> Counts
+            </Button>
+          </>
         )}
       </div>
 
