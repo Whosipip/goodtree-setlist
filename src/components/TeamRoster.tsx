@@ -580,21 +580,43 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                 <DialogTitle>Adjust people per role</DialogTitle>
               </DialogHeader>
               <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-                {DEFAULT_SLOTS.map((s) => (
-                  <div key={s.role} className="flex items-center justify-between gap-3">
-                    <Label className="flex-1">{s.role}</Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={20}
-                      value={draftCounts[s.role] ?? s.count}
-                      onChange={(e) =>
-                        setDraftCounts((p) => ({ ...p, [s.role]: Number(e.target.value) }))
-                      }
-                      className="w-24"
-                    />
-                  </div>
-                ))}
+                {slots.map((s) => {
+                  const isCustom = !DEFAULT_SLOTS.find((d) => d.role === s.role);
+                  return (
+                    <div key={s.role} className="flex items-center justify-between gap-3">
+                      <Label className="flex-1">
+                        {s.role}
+                        {isCustom && <span className="ml-1 text-xs text-muted-foreground">(custom)</span>}
+                      </Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={20}
+                        value={draftCounts[s.role] ?? s.count}
+                        onChange={(e) =>
+                          setDraftCounts((p) => ({ ...p, [s.role]: Number(e.target.value) }))
+                        }
+                        className="w-20"
+                      />
+                      {isCustom && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => {
+                            setCountsOpen(false);
+                            removeCustomRole(s.role);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+                <Button size="sm" variant="outline" className="w-full" onClick={addCustomRole}>
+                  <Plus className="w-4 h-4 mr-1" /> Add custom role
+                </Button>
               </div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setCountsOpen(false)}>Cancel</Button>
