@@ -309,12 +309,12 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
   const saveCounts = async () => {
     const cleaned: Record<string, number> = {};
-    DEFAULT_SLOTS.forEach((s) => {
-      const v = Math.max(0, Math.min(20, Number(draftCounts[s.role]) || 0));
+    slots.forEach((s) => {
+      const v = Math.max(0, Math.min(20, Number(draftCounts[s.role] ?? s.count) || 0));
       cleaned[s.role] = v;
     });
     await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
-    setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
+    setSlots(slots.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
     setCountsOpen(false);
     toast({ title: "Role counts updated" });
   };
