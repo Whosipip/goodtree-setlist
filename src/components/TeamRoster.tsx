@@ -93,10 +93,47 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     const { data } = await supabase.from("services").select("role_counts").eq("id", serviceId).maybeSingle();
     const rc = (data as any)?.role_counts;
     if (rc && typeof rc === "object") {
-      setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: rc[s.role] ?? s.count })));
+      // Start with defaults, override with any saved counts, then append any custom roles
+      const merged: Slot[] = DEFAULT_SLOTS.map((s) => ({ role: s.role, count: rc[s.role] ?? s.count }));
+      Object.keys(rc).forEach((role) => {
+        if (!merged.find((s) => s.role === role)) {
+          merged.push({ role, count: Number(rc[role]) || 0 });
+        }
+      });
+      setSlots(merged);
     } else {
       setSlots(DEFAULT_SLOTS);
     }
+  };
+
+  const addCustomRole = async () => {
+    const name = prompt("New role name (e.g. Violin, Keyboard 2)")?.trim();
+    if (!name) return;
+    if (slots.find((s) => s.role.toLowerCase() === name.toLowerCase())) {
+      toast({ title: "Role already exists", variant: "destructive" });
+      return;
+    }
+    const next = [...slots, { role: name, count: 1 }];
+    setSlots(next);
+    const cleaned: Record<string, number> = {};
+    next.forEach((s) => (cleaned[s.role] = s.count));
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    toast({ title: `Role "${name}" added` });
+  };
+
+  const removeCustomRole = async (role: string) => {
+    if (DEFAULT_SLOTS.find((s) => s.role === role)) {
+      toast({ title: "Cannot remove a default role", variant: "destructive" });
+      return;
+    }
+    if (!confirm(`Remove the "${role}" role from this service?`)) return;
+    const next = slots.filter((s) => s.role !== role);
+    setSlots(next);
+    setMembers((prev) => prev.filter((m) => m.role !== role));
+    await supabase.from("team_members").delete().eq("service_id", serviceId).eq("role", role);
+    const cleaned: Record<string, number> = {};
+    next.forEach((s) => (cleaned[s.role] = s.count));
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
   };
 
   const loadPeople = async () => {
