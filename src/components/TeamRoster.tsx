@@ -90,10 +90,29 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
   const load = async () => {
     const { data } = await supabase.from("team_members").select("*").eq("service_id", serviceId);
-    setMembers((data as any) || []);
+    const list = ((data as any) || []) as Member[];
+    setMembers(list);
+    // Auto-expand slots so every assigned member is visible (prevents Media/Tambourine
+    // names from being hidden when role count was saved lower than max position).
+    setSlots((prev) => expandSlotsForMembers(prev, list));
   };
 
-  const loadServiceConfig = async () => {
+  const expandSlotsForMembers = (current: Slot[], list: Member[]): Slot[] => {
+    const maxPos: Record<string, number> = {};
+    list.forEach((m) => {
+      if (m.name && m.name.trim()) {
+        maxPos[m.role] = Math.max(maxPos[m.role] || 0, m.position);
+      }
+    });
+    const next = current.map((s) => ({ ...s, count: Math.max(s.count, maxPos[s.role] || 0) }));
+    // Append any roles found on members that aren't in slots at all
+    Object.keys(maxPos).forEach((role) => {
+      if (!next.find((s) => s.role === role)) {
+        next.push({ role, count: maxPos[role] });
+      }
+    });
+    return next;
+  };
     const { data } = await supabase.from("services").select("role_counts").eq("id", serviceId).maybeSingle();
     const rc = (data as any)?.role_counts;
     if (rc && typeof rc === "object") {
