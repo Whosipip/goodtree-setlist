@@ -700,6 +700,33 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
             </DialogContent>
           </Dialog>
 
+          {/* Edit roles dialog */}
+          <Dialog open={!!editRolesPerson} onOpenChange={(o) => !o && setEditRolesPerson(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  Edit roles · {editRolesPerson?.name}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                <Label>Select all roles this member can do</Label>
+                {slots.map((s) => s.role).map((r) => (
+                  <label key={r} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer">
+                    <Checkbox
+                      checked={editRolesDraft.includes(r)}
+                      onCheckedChange={() => toggleEditRole(r)}
+                    />
+                    <span className="text-sm">{r}</span>
+                  </label>
+                ))}
+              </div>
+              <DialogFooter>
+                <Button variant="ghost" onClick={() => setEditRolesPerson(null)}>Cancel</Button>
+                <Button onClick={saveEditRoles}>Save</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           {/* Add member dialog */}
           <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetDialog(); }}>
             <DialogContent>
