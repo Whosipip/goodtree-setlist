@@ -273,11 +273,12 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
       toast({ title: "Preset name required", variant: "destructive" });
       return;
     }
-    const memberData = members
-      .filter((m) => m.name.trim())
-      .map(({ category, role, position, name }) => ({ category, role, position, name }));
+    const namedMembers = members.filter((m) => m.name.trim());
+    const memberData = namedMembers.map(({ category, role, position, name }) => ({ category, role, position, name }));
+    // Expand counts to fit named assignments so Media/Tambourine etc. survive round-trip.
+    const expanded = expandSlotsForMembers(slots, namedMembers);
     const counts: Record<string, number> = {};
-    slots.forEach((s) => (counts[s.role] = s.count));
+    expanded.forEach((s) => (counts[s.role] = s.count));
     const payload = { members: memberData, counts };
     const { error } = await supabase.from("team_presets").insert({ name: n, data: payload as any });
     if (error) {
