@@ -307,22 +307,27 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     }));
     if (rows.length) await supabase.from("team_members").insert(rows);
 
-    if (counts && typeof counts === "object") {
-      // Preserve every role saved in the preset (including custom ones) + defaults
-      const cleaned: Record<string, number> = {};
-      DEFAULT_SLOTS.forEach((s) => {
-        cleaned[s.role] = counts[s.role] ?? s.count;
-      });
+    // Start from defaults + preset counts + any custom roles
+    const cleaned: Record<string, number> = {};
+    DEFAULT_SLOTS.forEach((s) => {
+      cleaned[s.role] = counts && counts[s.role] !== undefined ? Number(counts[s.role]) : s.count;
+    });
+    if (counts) {
       Object.keys(counts).forEach((role) => {
         if (cleaned[role] === undefined) cleaned[role] = Number(counts[role]) || 0;
       });
-      const nextSlots: Slot[] = DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] }));
-      Object.keys(cleaned).forEach((role) => {
-        if (!nextSlots.find((s) => s.role === role)) nextSlots.push({ role, count: cleaned[role] });
-      });
-      await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
-      setSlots(nextSlots);
     }
+    // Make sure every role with named members gets enough slots
+    const namedRows = rows.filter((r) => r.name && r.name.trim());
+    namedRows.forEach((r) => {
+      cleaned[r.role] = Math.max(cleaned[r.role] || 0, r.position);
+    });
+    const nextSlots: Slot[] = DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] }));
+    Object.keys(cleaned).forEach((role) => {
+      if (!nextSlots.find((s) => s.role === role)) nextSlots.push({ role, count: cleaned[role] });
+    });
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    setSlots(nextSlots);
     await load();
     toast({ title: `Applied "${preset.name}"` });
   };
