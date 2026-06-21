@@ -261,6 +261,32 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     await loadPeople();
   };
 
+  const openEditRoles = (p: Person) => {
+    setEditRolesPerson(p);
+    setEditRolesDraft(p.roles || []);
+  };
+
+  const toggleEditRole = (role: string) => {
+    setEditRolesDraft((prev) =>
+      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+    );
+  };
+
+  const saveEditRoles = async () => {
+    if (!editRolesPerson) return;
+    const { error } = await supabase
+      .from("roster_people")
+      .update({ roles: editRolesDraft })
+      .eq("id", editRolesPerson.id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    setEditRolesPerson(null);
+    await loadPeople();
+    toast({ title: "Roles updated" });
+  };
+
   const toggleDraftRole = (role: string) => {
     setDraftRoles((prev) =>
       prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
