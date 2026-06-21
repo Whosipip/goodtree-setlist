@@ -213,6 +213,13 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
         });
       }
     }
+    // Persist current slot counts (expanded to fit assignments) so Media/Tambourine
+    // and any other roles with assigned names retain their visible slots on reload.
+    const expanded = expandSlotsForMembers(slots, members.filter((m) => m.name.trim()));
+    const cleaned: Record<string, number> = {};
+    expanded.forEach((s) => (cleaned[s.role] = s.count));
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    setSlots(expanded);
     await load();
     toast({ title: "Team saved" });
   };
