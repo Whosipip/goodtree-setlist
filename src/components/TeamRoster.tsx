@@ -77,6 +77,10 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const [draftCategory, setDraftCategory] = useState<Category | null>(null);
   const [draftRoles, setDraftRoles] = useState<string[]>([]);
 
+  // Edit-roles dialog state
+  const [editRolesPerson, setEditRolesPerson] = useState<Person | null>(null);
+  const [editRolesDraft, setEditRolesDraft] = useState<string[]>([]);
+
   useEffect(() => {
     load();
     loadPeople();
