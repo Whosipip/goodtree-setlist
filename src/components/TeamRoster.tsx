@@ -93,10 +93,47 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     const { data } = await supabase.from("services").select("role_counts").eq("id", serviceId).maybeSingle();
     const rc = (data as any)?.role_counts;
     if (rc && typeof rc === "object") {
-      setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: rc[s.role] ?? s.count })));
+      // Start with defaults, override with any saved counts, then append any custom roles
+      const merged: Slot[] = DEFAULT_SLOTS.map((s) => ({ role: s.role, count: rc[s.role] ?? s.count }));
+      Object.keys(rc).forEach((role) => {
+        if (!merged.find((s) => s.role === role)) {
+          merged.push({ role, count: Number(rc[role]) || 0 });
+        }
+      });
+      setSlots(merged);
     } else {
       setSlots(DEFAULT_SLOTS);
     }
+  };
+
+  const addCustomRole = async () => {
+    const name = prompt("New role name (e.g. Violin, Keyboard 2)")?.trim();
+    if (!name) return;
+    if (slots.find((s) => s.role.toLowerCase() === name.toLowerCase())) {
+      toast({ title: "Role already exists", variant: "destructive" });
+      return;
+    }
+    const next = [...slots, { role: name, count: 1 }];
+    setSlots(next);
+    const cleaned: Record<string, number> = {};
+    next.forEach((s) => (cleaned[s.role] = s.count));
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    toast({ title: `Role "${name}" added` });
+  };
+
+  const removeCustomRole = async (role: string) => {
+    if (DEFAULT_SLOTS.find((s) => s.role === role)) {
+      toast({ title: "Cannot remove a default role", variant: "destructive" });
+      return;
+    }
+    if (!confirm(`Remove the "${role}" role from this service?`)) return;
+    const next = slots.filter((s) => s.role !== role);
+    setSlots(next);
+    setMembers((prev) => prev.filter((m) => m.role !== role));
+    await supabase.from("team_members").delete().eq("service_id", serviceId).eq("role", role);
+    const cleaned: Record<string, number> = {};
+    next.forEach((s) => (cleaned[s.role] = s.count));
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
   };
 
   const loadPeople = async () => {
@@ -238,12 +275,20 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     if (rows.length) await supabase.from("team_members").insert(rows);
 
     if (counts && typeof counts === "object") {
+      // Preserve every role saved in the preset (including custom ones) + defaults
       const cleaned: Record<string, number> = {};
       DEFAULT_SLOTS.forEach((s) => {
         cleaned[s.role] = counts[s.role] ?? s.count;
       });
+      Object.keys(counts).forEach((role) => {
+        if (cleaned[role] === undefined) cleaned[role] = Number(counts[role]) || 0;
+      });
+      const nextSlots: Slot[] = DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] }));
+      Object.keys(cleaned).forEach((role) => {
+        if (!nextSlots.find((s) => s.role === role)) nextSlots.push({ role, count: cleaned[role] });
+      });
       await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
-      setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
+      setSlots(nextSlots);
     }
     await load();
     toast({ title: `Applied "${preset.name}"` });
@@ -264,12 +309,12 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
   const saveCounts = async () => {
     const cleaned: Record<string, number> = {};
-    DEFAULT_SLOTS.forEach((s) => {
-      const v = Math.max(0, Math.min(20, Number(draftCounts[s.role]) || 0));
+    slots.forEach((s) => {
+      const v = Math.max(0, Math.min(20, Number(draftCounts[s.role] ?? s.count) || 0));
       cleaned[s.role] = v;
     });
     await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
-    setSlots(DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
+    setSlots(slots.map((s) => ({ role: s.role, count: cleaned[s.role] ?? s.count })));
     setCountsOpen(false);
     toast({ title: "Role counts updated" });
   };
@@ -429,9 +474,14 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
           Joint
         </Button>
         {editable && (
-          <Button size="sm" variant="secondary" onClick={openCountsDialog}>
-            <Settings className="w-4 h-4 mr-1" /> Counts
-          </Button>
+          <>
+            <Button size="sm" variant="secondary" onClick={addCustomRole}>
+              <Plus className="w-4 h-4 mr-1" /> Role
+            </Button>
+            <Button size="sm" variant="secondary" onClick={openCountsDialog}>
+              <Settings className="w-4 h-4 mr-1" /> Counts
+            </Button>
+          </>
         )}
       </div>
 
@@ -530,21 +580,43 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                 <DialogTitle>Adjust people per role</DialogTitle>
               </DialogHeader>
               <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-                {DEFAULT_SLOTS.map((s) => (
-                  <div key={s.role} className="flex items-center justify-between gap-3">
-                    <Label className="flex-1">{s.role}</Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={20}
-                      value={draftCounts[s.role] ?? s.count}
-                      onChange={(e) =>
-                        setDraftCounts((p) => ({ ...p, [s.role]: Number(e.target.value) }))
-                      }
-                      className="w-24"
-                    />
-                  </div>
-                ))}
+                {slots.map((s) => {
+                  const isCustom = !DEFAULT_SLOTS.find((d) => d.role === s.role);
+                  return (
+                    <div key={s.role} className="flex items-center justify-between gap-3">
+                      <Label className="flex-1">
+                        {s.role}
+                        {isCustom && <span className="ml-1 text-xs text-muted-foreground">(custom)</span>}
+                      </Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={20}
+                        value={draftCounts[s.role] ?? s.count}
+                        onChange={(e) =>
+                          setDraftCounts((p) => ({ ...p, [s.role]: Number(e.target.value) }))
+                        }
+                        className="w-20"
+                      />
+                      {isCustom && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => {
+                            setCountsOpen(false);
+                            removeCustomRole(s.role);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+                <Button size="sm" variant="outline" className="w-full" onClick={addCustomRole}>
+                  <Plus className="w-4 h-4 mr-1" /> Add custom role
+                </Button>
               </div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setCountsOpen(false)}>Cancel</Button>
@@ -597,7 +669,7 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                 <div className="space-y-2">
                   <Label>Select all roles this member can do</Label>
                   <div className="space-y-2">
-                    {ALL_ROLES.map((r) => (
+                    {slots.map((s) => s.role).map((r) => (
                       <label key={r} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer">
                         <Checkbox
                           checked={draftRoles.includes(r)}
