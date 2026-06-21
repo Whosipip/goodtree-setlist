@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, X, Settings, Minus } from "lucide-react";
+import { Plus, Trash2, X, Settings, Minus, Pencil } from "lucide-react";
 
 type Category = "Highschool" | "Elementary";
 
@@ -77,6 +77,10 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const [draftCategory, setDraftCategory] = useState<Category | null>(null);
   const [draftRoles, setDraftRoles] = useState<string[]>([]);
 
+  // Edit-roles dialog state
+  const [editRolesPerson, setEditRolesPerson] = useState<Person | null>(null);
+  const [editRolesDraft, setEditRolesDraft] = useState<string[]>([]);
+
   useEffect(() => {
     load();
     loadPeople();
@@ -86,7 +90,28 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
 
   const load = async () => {
     const { data } = await supabase.from("team_members").select("*").eq("service_id", serviceId);
-    setMembers((data as any) || []);
+    const list = ((data as any) || []) as Member[];
+    setMembers(list);
+    // Auto-expand slots so every assigned member is visible (prevents Media/Tambourine
+    // names from being hidden when role count was saved lower than max position).
+    setSlots((prev) => expandSlotsForMembers(prev, list));
+  };
+
+  const expandSlotsForMembers = (current: Slot[], list: Member[]): Slot[] => {
+    const maxPos: Record<string, number> = {};
+    list.forEach((m) => {
+      if (m.name && m.name.trim()) {
+        maxPos[m.role] = Math.max(maxPos[m.role] || 0, m.position);
+      }
+    });
+    const next = current.map((s) => ({ ...s, count: Math.max(s.count, maxPos[s.role] || 0) }));
+    // Append any roles found on members that aren't in slots at all
+    Object.keys(maxPos).forEach((role) => {
+      if (!next.find((s) => s.role === role)) {
+        next.push({ role, count: maxPos[role] });
+      }
+    });
+    return next;
   };
 
   const loadServiceConfig = async () => {
@@ -188,6 +213,13 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
         });
       }
     }
+    // Persist current slot counts (expanded to fit assignments) so Media/Tambourine
+    // and any other roles with assigned names retain their visible slots on reload.
+    const expanded = expandSlotsForMembers(slots, members.filter((m) => m.name.trim()));
+    const cleaned: Record<string, number> = {};
+    expanded.forEach((s) => (cleaned[s.role] = s.count));
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    setSlots(expanded);
     await load();
     toast({ title: "Team saved" });
   };
@@ -229,6 +261,32 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     await loadPeople();
   };
 
+  const openEditRoles = (p: Person) => {
+    setEditRolesPerson(p);
+    setEditRolesDraft(p.roles || []);
+  };
+
+  const toggleEditRole = (role: string) => {
+    setEditRolesDraft((prev) =>
+      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+    );
+  };
+
+  const saveEditRoles = async () => {
+    if (!editRolesPerson) return;
+    const { error } = await supabase
+      .from("roster_people")
+      .update({ roles: editRolesDraft })
+      .eq("id", editRolesPerson.id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    setEditRolesPerson(null);
+    await loadPeople();
+    toast({ title: "Roles updated" });
+  };
+
   const toggleDraftRole = (role: string) => {
     setDraftRoles((prev) =>
       prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
@@ -241,11 +299,12 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
       toast({ title: "Preset name required", variant: "destructive" });
       return;
     }
-    const memberData = members
-      .filter((m) => m.name.trim())
-      .map(({ category, role, position, name }) => ({ category, role, position, name }));
+    const namedMembers = members.filter((m) => m.name.trim());
+    const memberData = namedMembers.map(({ category, role, position, name }) => ({ category, role, position, name }));
+    // Expand counts to fit named assignments so Media/Tambourine etc. survive round-trip.
+    const expanded = expandSlotsForMembers(slots, namedMembers);
     const counts: Record<string, number> = {};
-    slots.forEach((s) => (counts[s.role] = s.count));
+    expanded.forEach((s) => (counts[s.role] = s.count));
     const payload = { members: memberData, counts };
     const { error } = await supabase.from("team_presets").insert({ name: n, data: payload as any });
     if (error) {
@@ -274,22 +333,27 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     }));
     if (rows.length) await supabase.from("team_members").insert(rows);
 
-    if (counts && typeof counts === "object") {
-      // Preserve every role saved in the preset (including custom ones) + defaults
-      const cleaned: Record<string, number> = {};
-      DEFAULT_SLOTS.forEach((s) => {
-        cleaned[s.role] = counts[s.role] ?? s.count;
-      });
+    // Start from defaults + preset counts + any custom roles
+    const cleaned: Record<string, number> = {};
+    DEFAULT_SLOTS.forEach((s) => {
+      cleaned[s.role] = counts && counts[s.role] !== undefined ? Number(counts[s.role]) : s.count;
+    });
+    if (counts) {
       Object.keys(counts).forEach((role) => {
         if (cleaned[role] === undefined) cleaned[role] = Number(counts[role]) || 0;
       });
-      const nextSlots: Slot[] = DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] }));
-      Object.keys(cleaned).forEach((role) => {
-        if (!nextSlots.find((s) => s.role === role)) nextSlots.push({ role, count: cleaned[role] });
-      });
-      await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
-      setSlots(nextSlots);
     }
+    // Make sure every role with named members gets enough slots
+    const namedRows = rows.filter((r) => r.name && r.name.trim());
+    namedRows.forEach((r) => {
+      cleaned[r.role] = Math.max(cleaned[r.role] || 0, r.position);
+    });
+    const nextSlots: Slot[] = DEFAULT_SLOTS.map((s) => ({ role: s.role, count: cleaned[s.role] }));
+    Object.keys(cleaned).forEach((role) => {
+      if (!nextSlots.find((s) => s.role === role)) nextSlots.push({ role, count: cleaned[role] });
+    });
+    await supabase.from("services").update({ role_counts: cleaned as any }).eq("id", serviceId);
+    setSlots(nextSlots);
     await load();
     toast({ title: `Applied "${preset.name}"` });
   };
@@ -529,14 +593,25 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
                       {p.category || "—"} · {p.roles?.length ? p.roles.join(", ") : "no roles"}
                     </div>
                   </div>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7 shrink-0"
-                    onClick={() => deletePerson(p.id)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => openEditRoles(p)}
+                      aria-label="Edit roles"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => deletePerson(p.id)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -621,6 +696,33 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setCountsOpen(false)}>Cancel</Button>
                 <Button onClick={saveCounts}>Save Counts</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Edit roles dialog */}
+          <Dialog open={!!editRolesPerson} onOpenChange={(o) => !o && setEditRolesPerson(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  Edit roles · {editRolesPerson?.name}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                <Label>Select all roles this member can do</Label>
+                {slots.map((s) => s.role).map((r) => (
+                  <label key={r} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer">
+                    <Checkbox
+                      checked={editRolesDraft.includes(r)}
+                      onCheckedChange={() => toggleEditRole(r)}
+                    />
+                    <span className="text-sm">{r}</span>
+                  </label>
+                ))}
+              </div>
+              <DialogFooter>
+                <Button variant="ghost" onClick={() => setEditRolesPerson(null)}>Cancel</Button>
+                <Button onClick={saveEditRoles}>Save</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
