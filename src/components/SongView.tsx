@@ -15,6 +15,22 @@ interface SongViewProps {
 
 const transposeKey = (title: string) => `transpose:${title.trim().toLowerCase()}`;
 
+const getYouTubeId = (url: string): string | null => {
+  if (!url) return null;
+  const clean = url.split('&')[0];
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([\w-]{11})/,
+    /(?:youtu\.be\/)([\w-]{11})/,
+    /(?:youtube\.com\/embed\/)([\w-]{11})/,
+    /(?:youtube\.com\/shorts\/)([\w-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = clean.match(p);
+    if (m) return m[1];
+  }
+  return null;
+};
+
 const SHARP_SCALE = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const FLAT_SCALE  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -160,6 +176,35 @@ export const SongView = ({ songs, onClose }: SongViewProps) => {
             {useSharps ? 'Sharps (#)' : 'Flats (b)'}
           </button>
         </div>
+
+        {/* YouTube */}
+        {(() => {
+          const ytId = getYouTubeId(currentSong.youtubeUrl || '');
+          if (!ytId) return null;
+          return (
+            <div className="mb-6">
+              <div className="relative w-full overflow-hidden rounded-2xl shadow-xl" style={{ paddingTop: '56.25%' }}>
+                <iframe
+                  className="absolute inset-0 w-full h-full"
+                  src={`https://www.youtube.com/embed/${ytId}`}
+                  title={currentSong.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <div className="text-center mt-2">
+                <a
+                  href={`https://www.youtube.com/watch?v=${ytId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/90 hover:text-white underline text-sm break-all"
+                >
+                  https://www.youtube.com/watch?v={ytId}
+                </a>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Transpose */}
         <div className="flex items-center justify-center gap-4 mb-6">
