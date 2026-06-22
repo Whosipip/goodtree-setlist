@@ -15,6 +15,22 @@ interface SongViewProps {
 
 const transposeKey = (title: string) => `transpose:${title.trim().toLowerCase()}`;
 
+const getYouTubeId = (url: string): string | null => {
+  if (!url) return null;
+  const clean = url.split('&')[0];
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([\w-]{11})/,
+    /(?:youtu\.be\/)([\w-]{11})/,
+    /(?:youtube\.com\/embed\/)([\w-]{11})/,
+    /(?:youtube\.com\/shorts\/)([\w-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = clean.match(p);
+    if (m) return m[1];
+  }
+  return null;
+};
+
 const SHARP_SCALE = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const FLAT_SCALE  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
