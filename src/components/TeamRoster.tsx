@@ -518,38 +518,41 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
     </Card>
   );
 
+  const hasHS = members.some((m) => m.category === "Highschool" && m.name.trim());
+  const hasElem = members.some((m) => m.category === "Elementary" && m.name.trim());
+  const showByDeptAuto = hasHS && hasElem;
+  const effectiveJoint = editable ? joint : !showByDeptAuto;
+
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant={joint ? "outline" : "default"}
-          onClick={() => setJoint(false)}
-          className="flex-1"
-        >
-          By Department
-        </Button>
-        <Button
-          size="sm"
-          variant={joint ? "default" : "outline"}
-          onClick={() => setJoint(true)}
-          className="flex-1"
-        >
-          Joint
-        </Button>
-        {editable && (
-          <>
-            <Button size="sm" variant="secondary" onClick={addCustomRole}>
-              <Plus className="w-4 h-4 mr-1" /> Role
-            </Button>
-            <Button size="sm" variant="secondary" onClick={openCountsDialog}>
-              <Settings className="w-4 h-4 mr-1" /> Counts
-            </Button>
-          </>
-        )}
-      </div>
+      {editable && (
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant={joint ? "outline" : "default"}
+            onClick={() => setJoint(false)}
+            className="flex-1"
+          >
+            By Department
+          </Button>
+          <Button
+            size="sm"
+            variant={joint ? "default" : "outline"}
+            onClick={() => setJoint(true)}
+            className="flex-1"
+          >
+            Joint
+          </Button>
+          <Button size="sm" variant="secondary" onClick={addCustomRole}>
+            <Plus className="w-4 h-4 mr-1" /> Role
+          </Button>
+          <Button size="sm" variant="secondary" onClick={openCountsDialog}>
+            <Settings className="w-4 h-4 mr-1" /> Counts
+          </Button>
+        </div>
+      )}
 
-      {joint
+      {effectiveJoint
         ? renderRosterFor(null, "Joint (All Departments)")
         : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
