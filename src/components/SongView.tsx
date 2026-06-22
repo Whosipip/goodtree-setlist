@@ -177,6 +177,35 @@ export const SongView = ({ songs, onClose }: SongViewProps) => {
           </button>
         </div>
 
+        {/* YouTube */}
+        {(() => {
+          const ytId = getYouTubeId(currentSong.youtubeUrl || '');
+          if (!ytId) return null;
+          return (
+            <div className="mb-6">
+              <div className="relative w-full overflow-hidden rounded-2xl shadow-xl" style={{ paddingTop: '56.25%' }}>
+                <iframe
+                  className="absolute inset-0 w-full h-full"
+                  src={`https://www.youtube.com/embed/${ytId}`}
+                  title={currentSong.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <div className="text-center mt-2">
+                <a
+                  href={`https://www.youtube.com/watch?v=${ytId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/90 hover:text-white underline text-sm break-all"
+                >
+                  https://www.youtube.com/watch?v={ytId}
+                </a>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Transpose */}
         <div className="flex items-center justify-center gap-4 mb-6">
           <button
