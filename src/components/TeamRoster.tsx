@@ -527,7 +527,13 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const hasHS = members.some((m) => m.category === "Highschool" && m.name.trim());
   const hasElem = members.some((m) => m.category === "Elementary" && m.name.trim());
   const showByDeptAuto = hasHS && hasElem;
-  const effectiveJoint = editable ? joint : !showByDeptAuto;
+  const effectiveJoint =
+    viewMode === "joint" ? true : viewMode === "department" ? false : !showByDeptAuto;
+
+  const updateViewMode = async (mode: "auto" | "joint" | "department") => {
+    setViewMode(mode);
+    await supabase.from("services").update({ team_view_mode: mode }).eq("id", serviceId);
+  };
 
   return (
     <div className="space-y-4">
@@ -535,16 +541,16 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
         <div className="flex gap-2">
           <Button
             size="sm"
-            variant={joint ? "outline" : "default"}
-            onClick={() => setJoint(false)}
+            variant={effectiveJoint ? "outline" : "default"}
+            onClick={() => updateViewMode("department")}
             className="flex-1"
           >
             By Department
           </Button>
           <Button
             size="sm"
-            variant={joint ? "default" : "outline"}
-            onClick={() => setJoint(true)}
+            variant={effectiveJoint ? "default" : "outline"}
+            onClick={() => updateViewMode("joint")}
             className="flex-1"
           >
             Joint
