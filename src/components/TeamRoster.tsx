@@ -115,8 +115,14 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   };
 
   const loadServiceConfig = async () => {
-    const { data } = await supabase.from("services").select("role_counts").eq("id", serviceId).maybeSingle();
+    const { data } = await supabase.from("services").select("role_counts, team_view_mode").eq("id", serviceId).maybeSingle();
     const rc = (data as any)?.role_counts;
+    const tvm = (data as any)?.team_view_mode;
+    if (tvm === "joint" || tvm === "department" || tvm === "auto") {
+      setViewMode(tvm);
+    } else {
+      setViewMode("auto");
+    }
     if (rc && typeof rc === "object") {
       // Start with defaults, override with any saved counts, then append any custom roles
       const merged: Slot[] = DEFAULT_SLOTS.map((s) => ({ role: s.role, count: rc[s.role] ?? s.count }));
