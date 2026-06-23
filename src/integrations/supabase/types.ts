@@ -48,6 +48,7 @@ export type Database = {
           service_date: string
           service_time: string | null
           status: string | null
+          team_view_mode: string | null
           updated_at: string | null
         }
         Insert: {
@@ -59,6 +60,7 @@ export type Database = {
           service_date: string
           service_time?: string | null
           status?: string | null
+          team_view_mode?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -70,6 +72,7 @@ export type Database = {
           service_date?: string
           service_time?: string | null
           status?: string | null
+          team_view_mode?: string | null
           updated_at?: string | null
         }
         Relationships: []

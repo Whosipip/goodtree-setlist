@@ -66,7 +66,7 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const [presets, setPresets] = useState<Preset[]>([]);
   const [newPresetName, setNewPresetName] = useState("");
   const [slots, setSlots] = useState<Slot[]>(DEFAULT_SLOTS);
-  const [joint, setJoint] = useState(false);
+  const [viewMode, setViewMode] = useState<"auto" | "joint" | "department">("auto");
   const [countsOpen, setCountsOpen] = useState(false);
   const [draftCounts, setDraftCounts] = useState<Record<string, number>>({});
 
@@ -115,8 +115,14 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   };
 
   const loadServiceConfig = async () => {
-    const { data } = await supabase.from("services").select("role_counts").eq("id", serviceId).maybeSingle();
+    const { data } = await supabase.from("services").select("role_counts, team_view_mode").eq("id", serviceId).maybeSingle();
     const rc = (data as any)?.role_counts;
+    const tvm = (data as any)?.team_view_mode;
+    if (tvm === "joint" || tvm === "department" || tvm === "auto") {
+      setViewMode(tvm);
+    } else {
+      setViewMode("auto");
+    }
     if (rc && typeof rc === "object") {
       // Start with defaults, override with any saved counts, then append any custom roles
       const merged: Slot[] = DEFAULT_SLOTS.map((s) => ({ role: s.role, count: rc[s.role] ?? s.count }));
@@ -521,7 +527,13 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const hasHS = members.some((m) => m.category === "Highschool" && m.name.trim());
   const hasElem = members.some((m) => m.category === "Elementary" && m.name.trim());
   const showByDeptAuto = hasHS && hasElem;
-  const effectiveJoint = editable ? joint : !showByDeptAuto;
+  const effectiveJoint =
+    viewMode === "joint" ? true : viewMode === "department" ? false : !showByDeptAuto;
+
+  const updateViewMode = async (mode: "auto" | "joint" | "department") => {
+    setViewMode(mode);
+    await supabase.from("services").update({ team_view_mode: mode }).eq("id", serviceId);
+  };
 
   return (
     <div className="space-y-4">
@@ -529,16 +541,16 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
         <div className="flex gap-2">
           <Button
             size="sm"
-            variant={joint ? "outline" : "default"}
-            onClick={() => setJoint(false)}
+            variant={effectiveJoint ? "outline" : "default"}
+            onClick={() => updateViewMode("department")}
             className="flex-1"
           >
             By Department
           </Button>
           <Button
             size="sm"
-            variant={joint ? "default" : "outline"}
-            onClick={() => setJoint(true)}
+            variant={effectiveJoint ? "default" : "outline"}
+            onClick={() => updateViewMode("joint")}
             className="flex-1"
           >
             Joint

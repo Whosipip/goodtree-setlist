@@ -1,0 +1,1 @@
+ALTER TABLE public.services ADD COLUMN team_view_mode TEXT DEFAULT 'auto' CHECK (team_view_mode IN ('auto', 'joint', 'department'));
