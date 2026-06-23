@@ -66,7 +66,7 @@ export const TeamRoster = ({ serviceId, editable }: Props) => {
   const [presets, setPresets] = useState<Preset[]>([]);
   const [newPresetName, setNewPresetName] = useState("");
   const [slots, setSlots] = useState<Slot[]>(DEFAULT_SLOTS);
-  const [joint, setJoint] = useState(false);
+  const [viewMode, setViewMode] = useState<"auto" | "joint" | "department">("auto");
   const [countsOpen, setCountsOpen] = useState(false);
   const [draftCounts, setDraftCounts] = useState<Record<string, number>>({});
 
