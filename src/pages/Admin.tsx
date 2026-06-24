@@ -535,10 +535,21 @@ const Admin = () => {
           </Card>
         )}
 
-        {selectedDate && serviceId && (
+        {selectedDate && (
           <div className="mb-4">
             <h2 className="font-semibold text-white mb-2 px-1">Team Roster</h2>
-            <TeamRoster serviceId={serviceId} editable={true} />
+            {serviceId ? (
+              <TeamRoster serviceId={serviceId} editable={true} />
+            ) : (
+              <Card className="p-4 bg-white/95 text-center">
+                <p className="text-sm text-muted-foreground mb-3">
+                  No service exists yet for {format(selectedDate, "EEEE, MMMM d, yyyy")}.
+                </p>
+                <Button onClick={ensureService} size="sm">
+                  Create service & assign team
+                </Button>
+              </Card>
+            )}
           </div>
         )}
       </div>
