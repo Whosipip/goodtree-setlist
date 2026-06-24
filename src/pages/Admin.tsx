@@ -283,8 +283,8 @@ const Admin = () => {
     navigate("/auth");
   };
 
-  const isWednesdayOrAfter = (date: Date) => {
-    return startOfDay(date) >= startOfDay(WEDNESDAY_START) && isWednesday(date);
+  const isOnOrAfterStart = (date: Date) => {
+    return startOfDay(date) >= startOfDay(WEDNESDAY_START);
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
