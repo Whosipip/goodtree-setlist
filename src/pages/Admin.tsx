@@ -283,8 +283,8 @@ const Admin = () => {
     navigate("/auth");
   };
 
-  const isWednesdayOrAfter = (date: Date) => {
-    return startOfDay(date) >= startOfDay(WEDNESDAY_START) && isWednesday(date);
+  const isOnOrAfterStart = (date: Date) => {
+    return startOfDay(date) >= startOfDay(WEDNESDAY_START);
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -320,16 +320,16 @@ const Admin = () => {
           <Card className="p-4 bg-white/95">
             <div className="flex items-center mb-3">
               <CalIcon className="w-5 h-5 mr-2 text-primary" />
-              <h2 className="font-semibold">Pick a Wednesday Service</h2>
+              <h2 className="font-semibold">Pick a Service Date</h2>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Wednesdays only, starting June 24, 2026.
+              Any day from June 24, 2026 onward.
             </p>
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
-              disabled={(date) => !isWednesdayOrAfter(date)}
+              disabled={(date) => !isOnOrAfterStart(date)}
               defaultMonth={WEDNESDAY_START}
               className="p-3 pointer-events-auto rounded-md border"
             />
@@ -535,10 +535,21 @@ const Admin = () => {
           </Card>
         )}
 
-        {selectedDate && serviceId && (
+        {selectedDate && (
           <div className="mb-4">
             <h2 className="font-semibold text-white mb-2 px-1">Team Roster</h2>
-            <TeamRoster serviceId={serviceId} editable={true} />
+            {serviceId ? (
+              <TeamRoster serviceId={serviceId} editable={true} />
+            ) : (
+              <Card className="p-4 bg-white/95 text-center">
+                <p className="text-sm text-muted-foreground mb-3">
+                  No service exists yet for {format(selectedDate, "EEEE, MMMM d, yyyy")}.
+                </p>
+                <Button onClick={ensureService} size="sm">
+                  Create service & assign team
+                </Button>
+              </Card>
+            )}
           </div>
         )}
       </div>
